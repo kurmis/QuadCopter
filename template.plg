@@ -1,0 +1,208 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\workspace\stm32f3\mindes\mindes.uvproj
+Project File Date:  08/22/2013
+
+<h2>Output:</h2>
+Build target 'template'
+compiling main.c...
+linking...
+Program Size: Code=3720 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling stm32f30x_it.c...
+linking...
+Program Size: Code=3736 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling main.c...
+linking...
+Program Size: Code=3740 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+linking...
+Program Size: Code=3740 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Build target 'template'
+compiling MotorControl.c...
+main\MotorControl.c(158): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+linking...
+Program Size: Code=3748 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 1 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling main.c...
+linking...
+Program Size: Code=3748 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling MotorControl.c...
+main\MotorControl.c(158): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+linking...
+Program Size: Code=3748 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 1 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling MotorControl.c...
+main\MotorControl.c(158): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+linking...
+Program Size: Code=3748 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 1 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling MotorControl.c...
+main\MotorControl.c(158): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+linking...
+Program Size: Code=3748 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 1 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling main.c...
+linking...
+Program Size: Code=3748 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Build target 'template'
+linking...
+Program Size: Code=3748 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling stm32f30x_it.c...
+compiling main.c...
+linking...
+Program Size: Code=3796 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling stm32f30x_it.c...
+compiling main.c...
+linking...
+Program Size: Code=3824 RO-data=484 RW-data=68 ZI-data=1028  
+"template.axf" - 0 Error(s), 0 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling stm32f30x_it.c...
+compiling main.c...
+main\main.c(19): warning:  #188-D: enumerated type mixed with another type
+compiling MotorControl.c...
+main\MotorControl.c(158): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+linking...
+Program Size: Code=3812 RO-data=484 RW-data=100 ZI-data=1028  
+"template.axf" - 0 Error(s), 2 Warning(s).
+Build target 'template'
+compiling main.c...
+main\main.c(19): warning:  #188-D: enumerated type mixed with another type
+linking...
+Program Size: Code=3812 RO-data=484 RW-data=100 ZI-data=1028  
+"template.axf" - 0 Error(s), 1 Warning(s).
+Build target 'template'
+compiling main.c...
+main\main.c(19): warning:  #188-D: enumerated type mixed with another type
+main\main.c(36): warning:  #188-D: enumerated type mixed with another type
+linking...
+Program Size: Code=3804 RO-data=484 RW-data=100 ZI-data=1028  
+"template.axf" - 0 Error(s), 2 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling main.c...
+main\main.c(19): warning:  #188-D: enumerated type mixed with another type
+main\main.c(36): warning:  #188-D: enumerated type mixed with another type
+main\main.c(45): warning:  #188-D: enumerated type mixed with another type
+main\main.c(51): warning:  #188-D: enumerated type mixed with another type
+main\main.c(56): warning:  #188-D: enumerated type mixed with another type
+main\main.c(68): warning:  #188-D: enumerated type mixed with another type
+main\main.c(72): warning:  #188-D: enumerated type mixed with another type
+main\main.c(78): warning:  #188-D: enumerated type mixed with another type
+main\main.c(82): warning:  #188-D: enumerated type mixed with another type
+main\main.c(88): warning:  #188-D: enumerated type mixed with another type
+main\main.c(92): warning:  #188-D: enumerated type mixed with another type
+main\main.c(98): warning:  #188-D: enumerated type mixed with another type
+linking...
+Program Size: Code=3820 RO-data=484 RW-data=100 ZI-data=1028  
+"template.axf" - 0 Error(s), 12 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
+Build target 'template'
+compiling main.c...
+main\main.c(19): warning:  #188-D: enumerated type mixed with another type
+main\main.c(36): warning:  #188-D: enumerated type mixed with another type
+main\main.c(39): error:  #17: expected a "]"
+main\main.c(39): warning:  #188-D: enumerated type mixed with another type
+main\main.c(45): warning:  #188-D: enumerated type mixed with another type
+main\main.c(51): warning:  #188-D: enumerated type mixed with another type
+main\main.c(56): warning:  #188-D: enumerated type mixed with another type
+main\main.c(68): warning:  #188-D: enumerated type mixed with another type
+main\main.c(72): warning:  #188-D: enumerated type mixed with another type
+main\main.c(78): warning:  #188-D: enumerated type mixed with another type
+main\main.c(82): warning:  #188-D: enumerated type mixed with another type
+main\main.c(88): warning:  #188-D: enumerated type mixed with another type
+main\main.c(92): warning:  #188-D: enumerated type mixed with another type
+main\main.c(98): warning:  #188-D: enumerated type mixed with another type
+Target not created
+Build target 'template'
+compiling main.c...
+main\main.c(19): warning:  #188-D: enumerated type mixed with another type
+main\main.c(36): warning:  #188-D: enumerated type mixed with another type
+main\main.c(39): warning:  #188-D: enumerated type mixed with another type
+main\main.c(45): warning:  #188-D: enumerated type mixed with another type
+main\main.c(51): warning:  #188-D: enumerated type mixed with another type
+main\main.c(56): warning:  #188-D: enumerated type mixed with another type
+main\main.c(68): warning:  #188-D: enumerated type mixed with another type
+main\main.c(72): warning:  #188-D: enumerated type mixed with another type
+main\main.c(78): warning:  #188-D: enumerated type mixed with another type
+main\main.c(82): warning:  #188-D: enumerated type mixed with another type
+main\main.c(88): warning:  #188-D: enumerated type mixed with another type
+main\main.c(92): warning:  #188-D: enumerated type mixed with another type
+main\main.c(98): warning:  #188-D: enumerated type mixed with another type
+linking...
+Program Size: Code=3820 RO-data=484 RW-data=100 ZI-data=1028  
+"template.axf" - 0 Error(s), 13 Warning(s).
+Load "C:\\workspace\\stm32f3\\mindes\\template.AXF" 
+Erase Done.
+Programming Done.
+Verify OK.
