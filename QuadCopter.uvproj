@@ -43,10 +43,10 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\</OutputDirectory>
-          <OutputName>template</OutputName>
-          <CreateExecutable>1</CreateExecutable>
-          <CreateLib>0</CreateLib>
+          <OutputDirectory>.\obj\</OutputDirectory>
+          <OutputName>QuadCopter</OutputName>
+          <CreateExecutable>0</CreateExecutable>
+          <CreateLib>1</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
