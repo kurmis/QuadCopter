@@ -1,17 +1,20 @@
 #include "MotorControl.h"
 #include "utils.h"
 
-void init_motors()
+void init_motors(bool initHigh)
 {
 	float level = 0.0f;
 	init_pwm_gpio();
 	_pwm_period = init_pwm(400);
-	level = MOTOR_HIGH;
-	set_pwm_width_norm(1, _pwm_period, level);
-	set_pwm_width_norm(2, _pwm_period, level);
-	set_pwm_width_norm(3, _pwm_period, level);
-	set_pwm_width_norm(4, _pwm_period, level);
-	Delay(2000);
+	if(initHigh)
+	{
+		level = MOTOR_HIGH;
+		set_pwm_width_norm(1, _pwm_period, level);
+		set_pwm_width_norm(2, _pwm_period, level);
+		set_pwm_width_norm(3, _pwm_period, level);
+		set_pwm_width_norm(4, _pwm_period, level);
+		Delay(2000);
+	}
 	level = MOTOR_LOW;
 	set_pwm_width_norm(1, _pwm_period, level);
 	set_pwm_width_norm(2, _pwm_period, level);

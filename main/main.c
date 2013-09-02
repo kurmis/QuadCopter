@@ -35,7 +35,7 @@ int main(void)
 	{
 		STM_EVAL_LEDOff(LEDS[i]);
 	}
-	init_motors();
+	init_motors(false);
 	STM_EVAL_LEDOn(LEDS[LED_NUM-1]);
 	UserButtonPressed = 0x00;
   while (1)

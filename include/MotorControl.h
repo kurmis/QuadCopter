@@ -6,7 +6,8 @@
 
 static int _pwm_period;
 
-extern void init_motors(void);
+typedef enum { false, true } bool;
+extern void init_motors(bool initHigh);
 extern void setMotorSpeed(int motor, float level);
 
 void init_pwm_gpio(void);
