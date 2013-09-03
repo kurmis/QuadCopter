@@ -21,3 +21,13 @@
 *.crf
 
 *.lst
+
+*.Administrator
+
+*.bak
+
+*.dep
+
+*.axf
+
+build
