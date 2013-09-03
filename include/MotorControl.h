@@ -1,7 +1,7 @@
 #ifndef __MOTOR_CONTROL_H
 #define __MOTOR_CONTROL_H
 #define MOTOR_LOW 0.45f
-#define MOTOR_HIGH 0.82f
+#define MOTOR_HIGH 0.9f
 #define LED_NUM 8
 
 static int _pwm_period;

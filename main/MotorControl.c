@@ -32,11 +32,11 @@ void setMotorSpeed(int motor, float level)
 	float duty_cycle= 0.0f;
 	if(level < 1)
 	{
-		level = 1;
+		level = 1.0f;
 	}
 	else if (level > 1000)
 	{
-		level = 1000;
+		level = 1000.0f;
 	}
 	duty_cycle = MOTOR_LOW + level * (MOTOR_HIGH-MOTOR_LOW) / 1000.0f; 
 	//duty_cycle = 0.4f + 0.1f;

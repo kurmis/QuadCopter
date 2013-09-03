@@ -441,6 +441,16 @@
               <FileType>5</FileType>
               <FilePath>.\include\MotorControl.h</FilePath>
             </File>
+            <File>
+              <FileName>USART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\USART.c</FilePath>
+            </File>
+            <File>
+              <FileName>USART.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\include\USART.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -38,7 +38,21 @@
 /** @addtogroup SysTick_Example
   * @{
   */
+extern __IO uint8_t DataReady;
+extern __IO uint32_t USBConnectTimeOut;
+extern uint8_t Data = 0;
+extern char TX_Buffer[128];
+extern char RX_Buffer[128];
 
+uint8_t TX_OUT_Index 	= 0;
+uint8_t TX_IN_Index 	= 0;
+uint8_t TX_Count 	= 0;
+ 
+uint8_t RX_OUT_Index 	= 0;
+uint8_t RX_IN_Index 	= 0;
+uint8_t RX_Count 	= 0;
+__IO uint32_t i = 0;
+__IO uint32_t m = 0;
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -193,5 +207,56 @@ void EXTI0_IRQHandler(void)
     EXTI_ClearITPendingBit(USER_BUTTON_EXTI_LINE);
   }
 }
+void USART2_IRQHandler()
+{
+	//RX Interrupt Mode
+	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
+	{		
+		if(USART_GetFlagStatus(USART2,USART_FLAG_PE|USART_FLAG_FE|USART_FLAG_ORE)==0)
+		{
+			RX_Buffer[RX_IN_Index]=USART_ReceiveData(USART2);
+			if (++RX_IN_Index == sizeof(RX_Buffer)) RX_IN_Index = 0;
+			if (++RX_Count == sizeof(RX_Buffer))		RX_Count = 0;
+		}
+		USART_ClearITPendingBit(USART2,USART_IT_RXNE); 
+	}	
+	
+	//TX_Buffer Interrupt Mode
+	if(USART_GetITStatus(USART2, USART_IT_TC) != RESET)
+	{
+		RX_IN_Index = 0;
+		if(TX_Count)
+		{	
+			--TX_Count;
+			USART_SendData(USART2, TX_Buffer[TX_OUT_Index]); 
+			if(++TX_OUT_Index == sizeof(TX_Buffer)) 
+				TX_OUT_Index=0;						 
+		}
+		USART_ClearITPendingBit(USART2,USART_IT_TC);
+	}		
+	
+} 
+
+int fgetc(FILE *f)
+{
+	char data;
+	while (RX_Count==0);
+	data=RX_Buffer[RX_OUT_Index];
+	if (++RX_OUT_Index == sizeof(RX_Buffer)) 
+		RX_OUT_Index=0;
+	--RX_Count;
+	return data;
+}
+int fputc(int ch, FILE * f)
+{
+  // Transmit the character using USART1 
+  USART_SendData(USART2, (u8) ch);
+
+   // Wait until transmit finishes 
+  while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
+
+   return ch;
+} 
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
