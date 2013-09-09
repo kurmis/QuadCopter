@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "main.h"
 #include "MotorControl.h"
+#include "Mems.h"
 
 uint32_t volatile msTicks;
 __IO uint32_t UserButtonPressed = 0;
@@ -36,6 +37,8 @@ int main(void)
 	{
 		STM_EVAL_LEDOff(LEDS[i]);
 	}
+	Demo_GyroConfig();
+	Demo_CompassConfig();
 	init_motors(false);
 	Init_USART(1);
 	STM_EVAL_LEDOn(LEDS[LED_NUM-1]);

@@ -451,6 +451,16 @@
               <FileType>5</FileType>
               <FilePath>.\include\USART.h</FilePath>
             </File>
+            <File>
+              <FileName>Mems.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main\Mems.c</FilePath>
+            </File>
+            <File>
+              <FileName>Mems.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\include\Mems.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

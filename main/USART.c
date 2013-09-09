@@ -2,17 +2,21 @@
 //#include "main.h"
 #include "stm32f30x.h"
 #include "MotorControl.h"
+#include "Mems.h"
+#include "utils.h"
 
 //// command list  ///////
-#define CMD_SIZE 2
+#define CMD_SIZE 4
 int CMD_STR_LEN[CMD_SIZE];
 
-char* CMD_STR[CMD_SIZE] = {"null","setSpeed"};
+char* CMD_STR[CMD_SIZE] = {"null","setSpeed","getData", "gyroMotor"};
 
 void Init_Commands(void)
 {
 	CMD_STR_LEN[0] = 4;
 	CMD_STR_LEN[1] = 8;
+	CMD_STR_LEN[2] = 7;
+	CMD_STR_LEN[3] = 9;
 }
 
 
@@ -98,7 +102,7 @@ void Analyze_Usart(volatile char* buffer, int size)
 	}	
 	if(buffer[start] == '!')
 	{
-		printf("found command start\n\r");
+		//printf("found command start\n\r");
 		end = start+1;
 		while(buffer[end] != ';')
 		{
@@ -114,8 +118,8 @@ void Analyze_Usart(volatile char* buffer, int size)
 		}
 		if(buffer[end] == ';')
 		{
-			printf("found command end\n\ridentifying command\n\r");
-			printf("start at %d, end at %d\n\r", start, end);
+			//printf("found command end\n\ridentifying command\n\r");
+			//printf("start at %d, end at %d\n\r", start, end);
 			//identify
 			cmd = Identify(buffer, size, start, end);
 			if(cmd)
@@ -123,8 +127,46 @@ void Analyze_Usart(volatile char* buffer, int size)
 				if(cmd == 1)
 				{
 					sscanf(args, " %d %d", &motor, &mspeed);
-					printf("setting %d motor speed %d\n\r", motor, mspeed);
-					setMotorSpeed(motor, mspeed);
+					if(5 == motor)
+					{
+						printf("setting all motors speed=%d\n\r", mspeed);
+						for(motor = 1; motor < 5; motor++)
+						{
+							setMotorSpeed(motor, mspeed);
+						}
+					}
+					else
+					{
+						printf("setting motor=%d speed=%d\n\r", motor, mspeed);
+						setMotorSpeed(motor, mspeed);
+					}
+				}
+				else if(cmd == 2)
+				{
+					float gyroData[3]={0.0f};
+					float accData[3]={0.0f};
+					float magData[3]={0.0f};
+					Demo_GyroReadAngRate(gyroData);
+					Demo_CompassReadMag(magData);
+					Demo_CompassReadAcc(accData);
+					printf("gyro data %g %g %g\n\r", gyroData[0], gyroData[1], gyroData[2]);
+					printf("acc data  %g %g %g\n\r", accData[0], accData[1], accData[2]);					
+					printf("mag data  %g %g %g\n\r", magData[0], magData[1], magData[2]);
+				}
+				else if (cmd == 3)
+				{
+					float accData[3]={0.0f};
+					while(1)
+					{
+						Demo_CompassReadAcc(accData);
+						setMotorSpeed(1, accData[0]);
+						Delay(500);
+					}
+					
+				}
+				else
+				{
+					printf("command not implemented\n\r");
 				}
 			}
 			else
@@ -160,11 +202,11 @@ int Identify(volatile char* buffer, int b_size, int start, int stop)
 		}
 	}
 	command[size++] = '\0';
-	printf("Command extracted '%s', size %d \n\r", command, size);
+	//printf("Command extracted '%s', size %d \n\r", command, size);
 	for(;cmd < CMD_SIZE; cmd++)
 	{
 		compareValue = compStr(command, CMD_STR[cmd], CMD_STR_LEN[cmd]); 
-		printf("Comparing to command '%s', compare value %d\n\r", CMD_STR[cmd], compareValue);
+		//printf("Comparing to command '%s', compare value %d\n\r", CMD_STR[cmd], compareValue);
 		if(0 != compareValue)
 		{
 			int index = 0;
@@ -173,7 +215,7 @@ int Identify(volatile char* buffer, int b_size, int start, int stop)
 			{
 				args[index++] = command[pointer++];
 			}				
-			printf("extracted args string '%s'\n\r", args);
+			//printf("extracted args string '%s'\n\r", args);
 			return cmd;
 		}
 	}
