@@ -2,17 +2,45 @@
 #define __MOTOR_CONTROL_H
 #define MOTOR_LOW 0.45f
 #define MOTOR_HIGH 0.9f
+#define INIT_PWM 400
 #define LED_NUM 8
 
-static int _pwm_period;
+class Motor
+{
+public:
+	//do not initialize directly
+	Motor(int motor,int period);
+	void SetSpeed(float level);
+	
+private:
+	int m_pwmPeriod;
+	int m_motor;
+	int m_level;
+	void SetPwmWidthNorm(int channel, int pwm_period, float duty_cycle);
+	void SetPwmWidth(int channel, int pwm_period, int duty_cycle);
+};
 
-typedef enum { false, true } bool;
-extern void init_motors(bool initHigh);
-extern void setMotorSpeed(int motor, float level);
+class Motors {
 
-void init_pwm_gpio(void);
-void set_pwm_width_norm(int channel, int pwm_period, float duty_cycle);
-void set_pwm_width(int channel, int pwm_period, int duty_cycle);
-int init_pwm(int pwm_freq);
+public:
+	Motor* motor1;
+	Motor* motor2;
+	Motor* motor3;
+	Motor* motor4;
+	
+public:
+	Motors(bool initHigh);
+	void SetSpeed(float level);
+	void Reinit();
+
+private:
+	
+	void InitPwmGpio(void);
+	void SetPwmWidthNorm(int channel, int pwm_period, float duty_cycle);
+	void SetPwmWidth(int channel, int pwm_period, int duty_cycle);
+	int InitPwm(int pwm_freq);	
+	int m_pwmPeriod;
+
+};
 
 #endif

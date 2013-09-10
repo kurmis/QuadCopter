@@ -9,7 +9,7 @@
 #include "stm32f3_discovery_lsm303dlhc.h"
 #include "stm32f3_discovery_l3gd20.h"
 #include "math.h"
-#include "USART.h"
+#include "UsartCtrl.h"
 #include <stdio.h>
 
 static void TIM_Config(void);

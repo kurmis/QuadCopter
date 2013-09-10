@@ -402,19 +402,9 @@
               <FilePath>.\source\stm32f30x_it.c</FilePath>
             </File>
             <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main\main.c</FilePath>
-            </File>
-            <File>
               <FileName>system_stm32f30x.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main\system_stm32f30x.c</FilePath>
-            </File>
-            <File>
-              <FileName>utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main\utils.c</FilePath>
             </File>
             <File>
               <FileName>stm32f3_discovery.c</FileName>
@@ -432,34 +422,44 @@
               <FilePath>.\STM32F3_Discovery\stm32f3_discovery_lsm303dlhc.c</FilePath>
             </File>
             <File>
-              <FileName>MotorControl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main\MotorControl.c</FilePath>
-            </File>
-            <File>
               <FileName>MotorControl.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\include\MotorControl.h</FilePath>
             </File>
             <File>
-              <FileName>USART.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main\USART.c</FilePath>
-            </File>
-            <File>
-              <FileName>USART.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\include\USART.h</FilePath>
-            </File>
-            <File>
-              <FileName>Mems.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\main\Mems.c</FilePath>
-            </File>
-            <File>
               <FileName>Mems.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\include\Mems.h</FilePath>
+            </File>
+            <File>
+              <FileName>UsartCtrl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\include\UsartCtrl.h</FilePath>
+            </File>
+            <File>
+              <FileName>main.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\main\main.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Mems.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\main\Mems.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>MotorControl.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\main\MotorControl.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>utils.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\main\utils.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>UsartCtrl.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\main\UsartCtrl.cpp</FilePath>
             </File>
           </Files>
         </Group>

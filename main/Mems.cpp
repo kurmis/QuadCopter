@@ -7,29 +7,32 @@
 // float fTiltedX,fTiltedY = 0.0f;
 
 
-void Demo_GyroConfig(void)
+Gyro::Gyro(bool init)
 {
-  L3GD20_InitTypeDef L3GD20_InitStructure;
-  L3GD20_FilterConfigTypeDef L3GD20_FilterStructure;
-  
-  /* Configure Mems L3GD20 */
-  L3GD20_InitStructure.Power_Mode = L3GD20_MODE_ACTIVE;
-  L3GD20_InitStructure.Output_DataRate = L3GD20_OUTPUT_DATARATE_1;
-  L3GD20_InitStructure.Axes_Enable = L3GD20_AXES_ENABLE;
-  L3GD20_InitStructure.Band_Width = L3GD20_BANDWIDTH_4;
-  L3GD20_InitStructure.BlockData_Update = L3GD20_BlockDataUpdate_Continous;
-  L3GD20_InitStructure.Endianness = L3GD20_BLE_LSB;
-  L3GD20_InitStructure.Full_Scale = L3GD20_FULLSCALE_2000; 
-  L3GD20_Init(&L3GD20_InitStructure);
-   
-  L3GD20_FilterStructure.HighPassFilter_Mode_Selection =L3GD20_HPM_NORMAL_MODE_RES;
-  L3GD20_FilterStructure.HighPassFilter_CutOff_Frequency = L3GD20_HPFCF_0;
-  L3GD20_FilterConfig(&L3GD20_FilterStructure) ;
-  
-  L3GD20_FilterCmd(L3GD20_HIGHPASSFILTER_ENABLE);
+	if(init)
+  {
+		L3GD20_InitTypeDef L3GD20_InitStructure;
+		L3GD20_FilterConfigTypeDef L3GD20_FilterStructure;
+		
+		/* Configure Mems L3GD20 */
+		L3GD20_InitStructure.Power_Mode = L3GD20_MODE_ACTIVE;
+		L3GD20_InitStructure.Output_DataRate = L3GD20_OUTPUT_DATARATE_1;
+		L3GD20_InitStructure.Axes_Enable = L3GD20_AXES_ENABLE;
+		L3GD20_InitStructure.Band_Width = L3GD20_BANDWIDTH_4;
+		L3GD20_InitStructure.BlockData_Update = L3GD20_BlockDataUpdate_Continous;
+		L3GD20_InitStructure.Endianness = L3GD20_BLE_LSB;
+		L3GD20_InitStructure.Full_Scale = L3GD20_FULLSCALE_2000; 
+		L3GD20_Init(&L3GD20_InitStructure);
+		 
+		L3GD20_FilterStructure.HighPassFilter_Mode_Selection =L3GD20_HPM_NORMAL_MODE_RES;
+		L3GD20_FilterStructure.HighPassFilter_CutOff_Frequency = L3GD20_HPFCF_0;
+		L3GD20_FilterConfig(&L3GD20_FilterStructure) ;
+		
+		L3GD20_FilterCmd(L3GD20_HIGHPASSFILTER_ENABLE);
+	}
 }
 
-void Demo_GyroReadAngRate (float* pfData)
+void Gyro::GetData(float* pfData)
 {
   uint8_t tmpbuffer[6] ={0};
   int16_t RawData[3] = {0};
@@ -79,38 +82,41 @@ void Demo_GyroReadAngRate (float* pfData)
     pfData[i]=(float)RawData[i]/sensitivity;
   }
 }
-void Demo_CompassConfig(void)
+Compass::Compass(bool init)
 {
-  LSM303DLHCMag_InitTypeDef LSM303DLHC_InitStructure;
-  LSM303DLHCAcc_InitTypeDef LSM303DLHCAcc_InitStructure;
-  LSM303DLHCAcc_FilterConfigTypeDef LSM303DLHCFilter_InitStructure;
-  
-  /* Configure MEMS magnetometer main parameters: temp, working mode, full Scale and Data rate */
-  LSM303DLHC_InitStructure.Temperature_Sensor = LSM303DLHC_TEMPSENSOR_ENABLE;
-  LSM303DLHC_InitStructure.MagOutput_DataRate = LSM303DLHC_ODR_220_HZ ;
-  LSM303DLHC_InitStructure.MagFull_Scale = LSM303DLHC_FS_8_1_GA;
-  LSM303DLHC_InitStructure.Working_Mode = LSM303DLHC_CONTINUOS_CONVERSION;
-  LSM303DLHC_MagInit(&LSM303DLHC_InitStructure);
-  
-   /* Fill the accelerometer structure */
-  LSM303DLHCAcc_InitStructure.Power_Mode = LSM303DLHC_NORMAL_MODE;
-  LSM303DLHCAcc_InitStructure.AccOutput_DataRate = LSM303DLHC_ODR_1344_HZ ;
-  LSM303DLHCAcc_InitStructure.Axes_Enable= LSM303DLHC_AXES_ENABLE;
-  LSM303DLHCAcc_InitStructure.AccFull_Scale = LSM303DLHC_FULLSCALE_16G;
-  LSM303DLHCAcc_InitStructure.BlockData_Update = LSM303DLHC_BlockUpdate_Continous;
-  LSM303DLHCAcc_InitStructure.Endianness=LSM303DLHC_BLE_LSB;
-  LSM303DLHCAcc_InitStructure.High_Resolution=LSM303DLHC_HR_ENABLE;
-  /* Configure the accelerometer main parameters */
-  LSM303DLHC_AccInit(&LSM303DLHCAcc_InitStructure);
-  
-  /* Fill the accelerometer LPF structure */
-  LSM303DLHCFilter_InitStructure.HighPassFilter_Mode_Selection =LSM303DLHC_HPM_NORMAL_MODE;
-  LSM303DLHCFilter_InitStructure.HighPassFilter_CutOff_Frequency = LSM303DLHC_HPFCF_16;
-  LSM303DLHCFilter_InitStructure.HighPassFilter_AOI1 = LSM303DLHC_HPF_AOI1_DISABLE;
-  LSM303DLHCFilter_InitStructure.HighPassFilter_AOI2 = LSM303DLHC_HPF_AOI2_DISABLE;
+	if(init)
+	{
+		LSM303DLHCMag_InitTypeDef LSM303DLHC_InitStructure;
+		LSM303DLHCAcc_InitTypeDef LSM303DLHCAcc_InitStructure;
+		LSM303DLHCAcc_FilterConfigTypeDef LSM303DLHCFilter_InitStructure;
+		
+		/* Configure MEMS magnetometer main parameters: temp, working mode, full Scale and Data rate */
+		LSM303DLHC_InitStructure.Temperature_Sensor = LSM303DLHC_TEMPSENSOR_ENABLE;
+		LSM303DLHC_InitStructure.MagOutput_DataRate = LSM303DLHC_ODR_220_HZ ;
+		LSM303DLHC_InitStructure.MagFull_Scale = LSM303DLHC_FS_8_1_GA;
+		LSM303DLHC_InitStructure.Working_Mode = LSM303DLHC_CONTINUOS_CONVERSION;
+		LSM303DLHC_MagInit(&LSM303DLHC_InitStructure);
+		
+		 /* Fill the accelerometer structure */
+		LSM303DLHCAcc_InitStructure.Power_Mode = LSM303DLHC_NORMAL_MODE;
+		LSM303DLHCAcc_InitStructure.AccOutput_DataRate = LSM303DLHC_ODR_1344_HZ ;
+		LSM303DLHCAcc_InitStructure.Axes_Enable= LSM303DLHC_AXES_ENABLE;
+		LSM303DLHCAcc_InitStructure.AccFull_Scale = LSM303DLHC_FULLSCALE_16G;
+		LSM303DLHCAcc_InitStructure.BlockData_Update = LSM303DLHC_BlockUpdate_Continous;
+		LSM303DLHCAcc_InitStructure.Endianness=LSM303DLHC_BLE_LSB;
+		LSM303DLHCAcc_InitStructure.High_Resolution=LSM303DLHC_HR_ENABLE;
+		/* Configure the accelerometer main parameters */
+		LSM303DLHC_AccInit(&LSM303DLHCAcc_InitStructure);
+		
+		/* Fill the accelerometer LPF structure */
+		LSM303DLHCFilter_InitStructure.HighPassFilter_Mode_Selection =LSM303DLHC_HPM_NORMAL_MODE;
+		LSM303DLHCFilter_InitStructure.HighPassFilter_CutOff_Frequency = LSM303DLHC_HPFCF_16;
+		LSM303DLHCFilter_InitStructure.HighPassFilter_AOI1 = LSM303DLHC_HPF_AOI1_DISABLE;
+		LSM303DLHCFilter_InitStructure.HighPassFilter_AOI2 = LSM303DLHC_HPF_AOI2_DISABLE;
 
-  /* Configure the accelerometer LPF main parameters */
-  LSM303DLHC_AccFilterConfig(&LSM303DLHCFilter_InitStructure);
+		/* Configure the accelerometer LPF main parameters */
+		LSM303DLHC_AccFilterConfig(&LSM303DLHCFilter_InitStructure);
+	}
 }
 
 /**
@@ -118,7 +124,7 @@ void Demo_CompassConfig(void)
 * @param pnData: pointer to float buffer where to store data
 * @retval None
 */
-void Demo_CompassReadAcc(float* pfData)
+void Compass::GetAcc(float* pfData)
 {
   int16_t pnRawData[3];
   uint8_t ctrlx[2];
@@ -191,7 +197,7 @@ void Demo_CompassReadAcc(float* pfData)
 * @param  pfData: pointer to the data out
   * @retval None
   */
-void Demo_CompassReadMag (float* pfData)
+void Compass::GetMag (float* pfData)
 {
   static uint8_t buffer[6] = {0};
   uint8_t CTRLB = 0;

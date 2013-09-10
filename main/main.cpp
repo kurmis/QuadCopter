@@ -10,6 +10,7 @@ __IO uint32_t UserButtonPressed = 0;
 uint32_t LEDS[LED_NUM] = {LED3,LED4,LED6,LED8,LED10,LED9,LED7,LED5};
 __IO char RX_Buffer[128];
 __IO char TX_Buffer[128];
+Motors* motors;
 
 int main(void)
 {	
@@ -18,7 +19,7 @@ int main(void)
 	STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_EXTI);
 	for(i = 0; i < LED_NUM; i++)
 	{
-		STM_EVAL_LEDInit(LEDS[i]);
+		STM_EVAL_LEDInit((Led_TypeDef)LEDS[i]);
 	}
 	
 	msTicks = 0;	
@@ -35,13 +36,14 @@ int main(void)
 	
 	for(i = 0; i < LED_NUM; i++)
 	{
-		STM_EVAL_LEDOff(LEDS[i]);
+		STM_EVAL_LEDOff((Led_TypeDef)LEDS[i]);
 	}
-	Demo_GyroConfig();
-	Demo_CompassConfig();
-	init_motors(true);
+	Gyro gyro();
+	Compass compass();
+	static Motors motors_(false);
+	motors = &motors_;
 	Init_USART(1);
-	STM_EVAL_LEDOn(LEDS[LED_NUM-1]);
+	STM_EVAL_LEDOn((Led_TypeDef)LEDS[LED_NUM-1]);
 	UserButtonPressed = 0x00;
 	printf("Init complete\n\r");
   while (1)

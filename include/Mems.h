@@ -13,20 +13,19 @@
 #define LSM_Acc_Sensitivity_8g     (float)     0.25f           /*!< accelerometer sensitivity with 8 g full scale [LSB/mg] */
 #define LSM_Acc_Sensitivity_16g    (float)     0.0834f         /*!< accelerometer sensitivity with 12 g full scale [LSB/mg] */
 
+class Gyro
+{
+public:
+	Gyro(bool init = true);
+	void GetData(float* pfData);
+};
 
-
-void Demo_GyroConfig(void);
-void Demo_GyroReadAngRate (float* pfData);
-void Demo_CompassConfig(void);
-void Demo_CompassReadAcc(float* pfData);
-void Demo_CompassReadMag (float* pfData);
-
-
-
-
-
-
-
+class Compass
+{
+	Compass(bool init = true);
+	void GetAcc(float* pfData);
+	void GetMag(float* pfDaha);
+};
 
 
 #endif

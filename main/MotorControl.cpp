@@ -1,35 +1,56 @@
 #include "MotorControl.h"
 #include "utils.h"
 
-void init_motors(bool initHigh)
+
+Motors::Motors(bool initHigh)
 {
-	float level = 0.0f;
-	init_pwm_gpio();
-	_pwm_period = init_pwm(400);
+	InitPwmGpio();
+	m_pwmPeriod = InitPwm(INIT_PWM);
+	static Motor motor1_(1, m_pwmPeriod);
+	static Motor motor2_(2, m_pwmPeriod);
+	static Motor motor3_(3, m_pwmPeriod);
+	static Motor motor4_(4, m_pwmPeriod);
+	motor1 = &motor1_;
+	motor2 = &motor2_;
+	motor3 = &motor3_;
+	motor4 = &motor4_;
 	if(initHigh)
 	{
-		level = MOTOR_HIGH;
-		set_pwm_width_norm(1, _pwm_period, level);
-		set_pwm_width_norm(2, _pwm_period, level);
-		set_pwm_width_norm(3, _pwm_period, level);
-		set_pwm_width_norm(4, _pwm_period, level);
-		Delay(2000);
+		Reinit();
 	}
-	level = MOTOR_LOW;
-	set_pwm_width_norm(1, _pwm_period, level);
-	set_pwm_width_norm(2, _pwm_period, level);
-	set_pwm_width_norm(3, _pwm_period, level);
-	set_pwm_width_norm(4, _pwm_period, level);
-	Delay(4000);
+}
+
+void Motors::SetSpeed(float level)
+{
+	motor1->SetSpeed(level);
+	motor2->SetSpeed(level);
+	motor3->SetSpeed(level);
+	motor4->SetSpeed(level);	
 }
 /*
 motor = [1..4]
 level = [0..1000]
 
 */
-void setMotorSpeed(int motor, float level)
+void Motors::Reinit()
 {
+	SetSpeed(1000);
+	Delay(2000);
+	SetSpeed(0);
+	Delay(4000);
+}
+Motor::Motor(int motor,int period)
+{
+	m_motor = motor;
+	m_pwmPeriod = period;
+	SetPwmWidthNorm(m_motor, m_pwmPeriod, 0.0f);
+}
+
+void Motor::SetSpeed(float level)
+{
+	
 	float duty_cycle= 0.0f;
+	
 	if(level < 1)
 	{
 		level = 1.0f;
@@ -38,12 +59,12 @@ void setMotorSpeed(int motor, float level)
 	{
 		level = 1000.0f;
 	}
+	
 	duty_cycle = MOTOR_LOW + level * (MOTOR_HIGH-MOTOR_LOW) / 1000.0f; 
-	//duty_cycle = 0.4f + 0.1f;
-	set_pwm_width_norm(motor, _pwm_period, duty_cycle);
+	SetPwmWidthNorm(m_motor, m_pwmPeriod, duty_cycle);
 	
 }
-void init_pwm_gpio(void)
+void Motors::InitPwmGpio(void)
 {
 	// The Timer 1 channels 1,2 and 3 are connected to the LED pins on the Discovery board
 	// To drive the ECSs they could to be connected to other pins if needed.
@@ -71,7 +92,7 @@ void init_pwm_gpio(void)
 	
 }
 
-int init_pwm(int pwm_freq)
+int Motors::InitPwm(int pwm_freq)
 {
 	
 	TIM_OCInitTypeDef  TIM_OCInitStructure_pwm;
@@ -156,7 +177,7 @@ int init_pwm(int pwm_freq)
 	return pwm_period;
 }
 
-void set_pwm_width(int channel, int pwm_period, int duty_cycle)
+void Motor::SetPwmWidth(int channel, int pwm_period, int duty_cycle)
 {
 	int pwm_pulses = pwm_period*(float)duty_cycle/100.0;
 	switch (channel){
@@ -173,7 +194,7 @@ void set_pwm_width(int channel, int pwm_period, int duty_cycle)
   * @param  duty_cycle:  PWM duty cycle (float) [0..1]
   * @retval None
   */
-void set_pwm_width_norm(int channel, int pwm_period, float duty_cycle)
+void Motor::SetPwmWidthNorm(int channel, int pwm_period, float duty_cycle)
 {
 	int pwm_pulses = pwm_period*(float)duty_cycle;
 	switch (channel){
