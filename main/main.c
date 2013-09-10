@@ -39,7 +39,7 @@ int main(void)
 	}
 	Demo_GyroConfig();
 	Demo_CompassConfig();
-	init_motors(false);
+	init_motors(true);
 	Init_USART(1);
 	STM_EVAL_LEDOn(LEDS[LED_NUM-1]);
 	UserButtonPressed = 0x00;

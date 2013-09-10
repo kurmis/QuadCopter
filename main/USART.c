@@ -9,14 +9,15 @@
 #define CMD_SIZE 4
 int CMD_STR_LEN[CMD_SIZE];
 
-char* CMD_STR[CMD_SIZE] = {"null","setSpeed","getData", "gyroMotor"};
+char* CMD_STR[CMD_SIZE] = {"null","setSpeed","getData", "setAuto"};
 
 void Init_Commands(void)
 {
-	CMD_STR_LEN[0] = 4;
-	CMD_STR_LEN[1] = 8;
-	CMD_STR_LEN[2] = 7;
-	CMD_STR_LEN[3] = 9;
+	int i = 0; 
+	for(;i<CMD_SIZE; i++)
+	{
+		CMD_STR_LEN[i] = strlen(CMD_STR[i]);
+	}
 }
 
 
@@ -127,7 +128,7 @@ void Analyze_Usart(volatile char* buffer, int size)
 				if(cmd == 1)
 				{
 					sscanf(args, " %d %d", &motor, &mspeed);
-					if(5 == motor)
+					if(0 == motor)
 					{
 						printf("setting all motors speed=%d\n\r", mspeed);
 						for(motor = 1; motor < 5; motor++)
@@ -155,12 +156,16 @@ void Analyze_Usart(volatile char* buffer, int size)
 				}
 				else if (cmd == 3)
 				{
+					float mspeed = 200.0f;
 					float accData[3]={0.0f};
+					float delta = 0.0f;
 					while(1)
 					{
 						Demo_CompassReadAcc(accData);
-						setMotorSpeed(1, accData[0]);
-						Delay(500);
+						delta = (200-accData[0]) / 5;
+						setMotorSpeed(1, mspeed + delta);
+						Delay(300);
+						printf("delta: %g", mspeed + delta);
 					}
 					
 				}

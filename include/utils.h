@@ -5,6 +5,6 @@
 #include "main.h"
 
 void Delay(__IO uint32_t nTime);
-
+uint8_t strlen(char* str);
 
 #endif
