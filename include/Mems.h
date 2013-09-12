@@ -22,10 +22,22 @@ public:
 
 class Compass
 {
+public:
 	Compass(bool init = true);
 	void GetAcc(float* pfData);
-	void GetMag(float* pfDaha);
+	void GetMag(float* pfData);
 };
 
+class Sensors
+{
+private:
+	float m_angles[3];
+	Gyro* gyro;
+	Compass* compass;
+public:
+	Sensors();
+	void GetAngles(float* pfData);
+	void CalcAngles();
+};
 
 #endif

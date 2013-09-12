@@ -5,7 +5,24 @@
 // float MagBuffer[3] = {0.0f}, AccBuffer[3] = {0.0f}, Buffer[3] = {0.0f};
 // float fNormAcc,fSinRoll,fCosRoll,fSinPitch,fCosPitch = 0.0f, RollAng = 0.0f, PitchAng = 0.0f;
 // float fTiltedX,fTiltedY = 0.0f;
-
+Sensors::Sensors()
+{
+	static Gyro gyro_(1);
+	static Compass compass_(1);
+	gyro = &gyro_;
+	compass = &compass_;
+}
+void Sensors::GetAngles(float* pfData)
+{
+	for(int i = 0; i < 3; i++)
+	{
+		pfData[i] = m_angles[i];
+	}
+}
+void CalcAngles()
+{
+	
+}
 
 Gyro::Gyro(bool init)
 {
@@ -249,4 +266,18 @@ void Compass::GetMag (float* pfData)
     pfData[i]=(float)((int16_t)(((uint16_t)buffer[2*i] << 8) + buffer[2*i+1])*1000)/Magn_Sensitivity_XY;
   }
   pfData[2]=(float)((int16_t)(((uint16_t)buffer[4] << 8) + buffer[5])*1000)/Magn_Sensitivity_Z;
+}
+
+
+extern uint32_t msTicks;
+extern Sensors* sensors;
+/**
+  * @brief  This function handles SysTick Handler.
+  * @param  None
+  * @retval None
+  */
+void SysTick_Handler(void)
+{
+	msTicks++;
+	sensors->CalcAngles();
 }

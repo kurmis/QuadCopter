@@ -432,11 +432,6 @@
               <FilePath>.\include\Mems.h</FilePath>
             </File>
             <File>
-              <FileName>UsartCtrl.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\include\UsartCtrl.h</FilePath>
-            </File>
-            <File>
               <FileName>main.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>.\main\main.cpp</FilePath>
@@ -457,9 +452,9 @@
               <FilePath>.\main\utils.cpp</FilePath>
             </File>
             <File>
-              <FileName>UsartCtrl.cpp</FileName>
+              <FileName>UsartManager.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>.\main\UsartCtrl.cpp</FilePath>
+              <FilePath>.\main\UsartManager.cpp</FilePath>
             </File>
           </Files>
         </Group>

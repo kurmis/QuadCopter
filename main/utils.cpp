@@ -1,6 +1,7 @@
 
 #include "utils.h"
 
+extern uint32_t volatile msTicks;
 
 void Delay(__IO uint32_t nTime)
 {

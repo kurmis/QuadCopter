@@ -29,7 +29,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f30x_it.h"
+#include "stm32f3_discovery.h"
 #include "main.h"
+#include <stdio.h>
+
 
 /** @addtogroup STM32F3_Discovery_Peripheral_Examples
   * @{
@@ -38,8 +41,10 @@
 /** @addtogroup SysTick_Example
   * @{
   */
+__IO uint32_t UserButtonPressed = 0;
 extern __IO uint8_t DataReady;
 extern __IO uint32_t USBConnectTimeOut;
+
 extern uint8_t Data = 0;
 extern char TX_Buffer[128];
 extern char RX_Buffer[128];
@@ -152,15 +157,7 @@ void PendSV_Handler(void)
 {
 }
 
-/**
-  * @brief  This function handles SysTick Handler.
-  * @param  None
-  * @retval None
-  */
-void SysTick_Handler(void)
-{
-	msTicks++;
-}
+
 
 /******************************************************************************/
 /*                 STM32F30x Peripherals Interrupt Handlers                   */
@@ -237,7 +234,7 @@ void USART2_IRQHandler()
 	
 } 
 
-int fgetc(FILE *f)
+int fgetc(FILE* f)
 {
 	char data;
 	while (RX_Count==0);
@@ -247,7 +244,8 @@ int fgetc(FILE *f)
 	--RX_Count;
 	return data;
 }
-int fputc(int ch, FILE * f)
+
+int fputc(int ch, FILE* f)
 {
   // Transmit the character using USART1 
   USART_SendData(USART2, (u8) ch);

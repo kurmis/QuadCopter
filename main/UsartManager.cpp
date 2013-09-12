@@ -1,10 +1,13 @@
-#include "UsartCtrl.h"
+#include "UsartManager.h"
 //#include "main.h"
-#include <stdio.h>
 #include "stm32f30x.h"
-#include "MotorControl.h"
+
 #include "Mems.h"
 #include "utils.h"
+#include <stdio.h>
+
+const int USART_SPEED= 115200;
+bool RecievedData(int RX_Count) { return (RX_Count>0); };
 
 //// command list  ///////
 #define CMD_SIZE 5
@@ -12,7 +15,7 @@ int CMD_STR_LEN[CMD_SIZE];
 
 char* CMD_STR[CMD_SIZE] = {"null","setSpeed","getData", "setAuto", "initMotors"};
 
-void Init_Commands(void)
+void UsartManager::Init_Commands(void)
 {
 	int i = 0; 
 	for(;i<CMD_SIZE; i++)
@@ -35,7 +38,8 @@ GPIO_InitTypeDef GPIO_InitStructure;
 USART_InitTypeDef USART_InitStructure;
 NVIC_InitTypeDef NVIC_InitStructure;
 
-Usart::Usart(int inten) {
+UsartManager::UsartManager(int inten, Motors* motors) {
+	m_motors = motors;
 	/* Enable GPIO clock */
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 	/* Enable USART clock */
@@ -87,7 +91,7 @@ Usart::Usart(int inten) {
 	Init_Commands();
 }
 
-int GetCommand(volatile char* buffer, int size)
+int UsartManager::GetCommand(volatile char* buffer, int size, Sensors* sensors)
 {
 	int motor = 0;
 	int mspeed = 0;
@@ -134,7 +138,7 @@ int GetCommand(volatile char* buffer, int size)
 						printf("setting all motors speed=%d\n\r", mspeed);
 						for(motor = 1; motor < 5; motor++)
 						{
-							motors->SetSpeed(mspeed);
+							m_motors->SetSpeed(mspeed);
 						}
 					}
 					else
@@ -142,23 +146,18 @@ int GetCommand(volatile char* buffer, int size)
 						printf("setting motor=%d speed=%d\n\r", motor, mspeed);
 						if(motor == 1)
 						{
-							motors->motor1->SetSpeed(mspeed);
+							m_motors->motor1->SetSpeed(mspeed);
 						}
 					}
 				}
 				else if(cmd == 2)
 				{
-					float gyroData[3]={0.0f};
-					float accData[3]={0.0f};
-					float magData[3]={0.0f};
-					Demo_GyroReadAngRate(gyroData);
-					Demo_CompassReadMag(magData);
-					Demo_CompassReadAcc(accData);
-					printf("gyro data %g %g %g\n\r", gyroData[0], gyroData[1], gyroData[2]);
-					printf("acc data  %g %g %g\n\r", accData[0], accData[1], accData[2]);					
-					printf("mag data  %g %g %g\n\r", magData[0], magData[1], magData[2]);
+					float angles[3] = {0};
+					sensors->GetAngles(angles);
+					printf("angles: %g %g %g\n\r",angles[0],angles[1],angles[2]); 
+					
 				}
-				else if (cmd == 3)
+				/*else if (cmd == 3)
 				{
 					float mspeed = 200.0f;
 					float gyroData[3]={0.0f};
@@ -168,15 +167,16 @@ int GetCommand(volatile char* buffer, int size)
 						Demo_GyroReadAngRate(gyroData);
 						//delta = (200-accData[0]) / 5;
 						delta = gyroData[0]*10;
-						motors->motor1->SetSpeed(mspeed+delta);
+						m_motors->motor1->SetSpeed(mspeed+delta);
 						Delay(300);
 						printf("delta %g, speed %g\n\r",delta,delta+mspeed);
 					}
 					
-				}
+				}*/
 				else if(cmd == 4)
 				{
-					motors->Reinit();
+					printf("Restarting motors");
+					m_motors->Reinit();
 				}
 				else
 				{
@@ -193,7 +193,7 @@ int GetCommand(volatile char* buffer, int size)
 	return cmd;
 }
 
-void Usart::Clear_Buffer(volatile char* buffer, int size)
+void UsartManager::Clear_Buffer(volatile char* buffer, int size)
 {
 	int i = 0;
 	for(i = 0; i < size; i++)
@@ -202,7 +202,7 @@ void Usart::Clear_Buffer(volatile char* buffer, int size)
 	}
 }
 
-int Usart::Identify(volatile char* buffer, int b_size, int start, int stop)
+int UsartManager::Identify(volatile char* buffer, int b_size, int start, int stop)
 {
 	int compareValue = 0;
 	int cmd = 0;
@@ -237,7 +237,7 @@ int Usart::Identify(volatile char* buffer, int b_size, int start, int stop)
 	return 0;
 }
 
-int Usart::compStr (char *s1, char *s2, int sz) {
+int UsartManager::compStr (char *s1, char *s2, int sz) {
     while (sz != 0) {
         // At end of both strings, equal.
         if ((*s1 == '\0') && (*s2 == '\0')) break;
