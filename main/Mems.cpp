@@ -1,16 +1,25 @@
 #include "Mems.h"
+#include <Math.h>
+#include <stdio.h>
 #include "stm32f3_discovery_lsm303dlhc.h"
 #include "stm32f3_discovery_l3gd20.h"
+#include "stm32f3_discovery.h"
+
+const float COMPLEMENTARY_GYRO = 0.99f;
+const float COMPLEMENTARY_ACC = 1.0f - COMPLEMENTARY_GYRO; 
+const float RAD_TO_DEG = 180.0f / PI;
 
 // float MagBuffer[3] = {0.0f}, AccBuffer[3] = {0.0f}, Buffer[3] = {0.0f};
 // float fNormAcc,fSinRoll,fCosRoll,fSinPitch,fCosPitch = 0.0f, RollAng = 0.0f, PitchAng = 0.0f;
 // float fTiltedX,fTiltedY = 0.0f;
-Sensors::Sensors()
+Sensors::Sensors(Gyro* gyro, Compass* compass)
 {
-	static Gyro gyro_(1);
-	static Compass compass_(1);
-	gyro = &gyro_;
-	compass = &compass_;
+	m_gyro = gyro;
+	m_compass = compass;
+	for(int i = 0; i < 3; i++)
+	{
+		m_angles[i] = 0;
+	}
 }
 void Sensors::GetAngles(float* pfData)
 {
@@ -19,12 +28,33 @@ void Sensors::GetAngles(float* pfData)
 		pfData[i] = m_angles[i];
 	}
 }
-void CalcAngles()
+
+void Sensors::CalcAngles(float dt)
 {
+	float gyroData[3]={0};
+	float accData[3]={0};
+	m_gyro->GetData(gyroData);
+	m_compass->GetAcc(accData);
 	
+	float accAngle[3]={0};
+	float len = 0;
+	for(int i = 0; i < 3; i++)
+	{
+		len += accData[i]*accData[i];
+	}
+	len = sqrt(len);
+	
+	accAngle[0] = RAD_TO_DEG * acos(accData[0]/len) - 90.0f;
+	accAngle[1] = RAD_TO_DEG * acos(accData[1]/len) - 90.0f;
+	accAngle[2] = RAD_TO_DEG * acos(accData[2]/len);
+	
+	for(int i = 0; i < 3; i++)
+	{
+		m_angles[i] = COMPLEMENTARY_GYRO*(m_angles[i] + gyroData[i]*dt) + COMPLEMENTARY_ACC*accAngle[i];
+	}
 }
 
-Gyro::Gyro(bool init)
+Gyro::Gyro(int init)
 {
 	if(init)
   {
@@ -99,41 +129,38 @@ void Gyro::GetData(float* pfData)
     pfData[i]=(float)RawData[i]/sensitivity;
   }
 }
-Compass::Compass(bool init)
+Compass::Compass(int init)
 {
-	if(init)
-	{
-		LSM303DLHCMag_InitTypeDef LSM303DLHC_InitStructure;
-		LSM303DLHCAcc_InitTypeDef LSM303DLHCAcc_InitStructure;
-		LSM303DLHCAcc_FilterConfigTypeDef LSM303DLHCFilter_InitStructure;
-		
-		/* Configure MEMS magnetometer main parameters: temp, working mode, full Scale and Data rate */
-		LSM303DLHC_InitStructure.Temperature_Sensor = LSM303DLHC_TEMPSENSOR_ENABLE;
-		LSM303DLHC_InitStructure.MagOutput_DataRate = LSM303DLHC_ODR_220_HZ ;
-		LSM303DLHC_InitStructure.MagFull_Scale = LSM303DLHC_FS_8_1_GA;
-		LSM303DLHC_InitStructure.Working_Mode = LSM303DLHC_CONTINUOS_CONVERSION;
-		LSM303DLHC_MagInit(&LSM303DLHC_InitStructure);
-		
-		 /* Fill the accelerometer structure */
-		LSM303DLHCAcc_InitStructure.Power_Mode = LSM303DLHC_NORMAL_MODE;
-		LSM303DLHCAcc_InitStructure.AccOutput_DataRate = LSM303DLHC_ODR_1344_HZ ;
-		LSM303DLHCAcc_InitStructure.Axes_Enable= LSM303DLHC_AXES_ENABLE;
-		LSM303DLHCAcc_InitStructure.AccFull_Scale = LSM303DLHC_FULLSCALE_16G;
-		LSM303DLHCAcc_InitStructure.BlockData_Update = LSM303DLHC_BlockUpdate_Continous;
-		LSM303DLHCAcc_InitStructure.Endianness=LSM303DLHC_BLE_LSB;
-		LSM303DLHCAcc_InitStructure.High_Resolution=LSM303DLHC_HR_ENABLE;
-		/* Configure the accelerometer main parameters */
-		LSM303DLHC_AccInit(&LSM303DLHCAcc_InitStructure);
-		
-		/* Fill the accelerometer LPF structure */
-		LSM303DLHCFilter_InitStructure.HighPassFilter_Mode_Selection =LSM303DLHC_HPM_NORMAL_MODE;
-		LSM303DLHCFilter_InitStructure.HighPassFilter_CutOff_Frequency = LSM303DLHC_HPFCF_16;
-		LSM303DLHCFilter_InitStructure.HighPassFilter_AOI1 = LSM303DLHC_HPF_AOI1_DISABLE;
-		LSM303DLHCFilter_InitStructure.HighPassFilter_AOI2 = LSM303DLHC_HPF_AOI2_DISABLE;
+	LSM303DLHCMag_InitTypeDef LSM303DLHC_InitStructure;
+  LSM303DLHCAcc_InitTypeDef LSM303DLHCAcc_InitStructure;
+  LSM303DLHCAcc_FilterConfigTypeDef LSM303DLHCFilter_InitStructure;
+  
+  /* Configure MEMS magnetometer main parameters: temp, working mode, full Scale and Data rate */
+  LSM303DLHC_InitStructure.Temperature_Sensor = LSM303DLHC_TEMPSENSOR_ENABLE;
+  LSM303DLHC_InitStructure.MagOutput_DataRate = LSM303DLHC_ODR_220_HZ ;
+  LSM303DLHC_InitStructure.MagFull_Scale = LSM303DLHC_FS_8_1_GA;
+  LSM303DLHC_InitStructure.Working_Mode = LSM303DLHC_CONTINUOS_CONVERSION;
+  LSM303DLHC_MagInit(&LSM303DLHC_InitStructure);
+  
+   /* Fill the accelerometer structure */
+  LSM303DLHCAcc_InitStructure.Power_Mode = LSM303DLHC_NORMAL_MODE;
+  LSM303DLHCAcc_InitStructure.AccOutput_DataRate = LSM303DLHC_ODR_1344_HZ ;
+  LSM303DLHCAcc_InitStructure.Axes_Enable= LSM303DLHC_AXES_ENABLE;
+  LSM303DLHCAcc_InitStructure.AccFull_Scale = LSM303DLHC_FULLSCALE_16G;
+  LSM303DLHCAcc_InitStructure.BlockData_Update = LSM303DLHC_BlockUpdate_Continous;
+  LSM303DLHCAcc_InitStructure.Endianness=LSM303DLHC_BLE_LSB;
+  LSM303DLHCAcc_InitStructure.High_Resolution=LSM303DLHC_HR_ENABLE;
+  /* Configure the accelerometer main parameters */
+  LSM303DLHC_AccInit(&LSM303DLHCAcc_InitStructure);
+  
+  /* Fill the accelerometer LPF structure */
+  LSM303DLHCFilter_InitStructure.HighPassFilter_Mode_Selection =LSM303DLHC_HPM_NORMAL_MODE;
+  LSM303DLHCFilter_InitStructure.HighPassFilter_CutOff_Frequency = LSM303DLHC_HPFCF_16;
+  LSM303DLHCFilter_InitStructure.HighPassFilter_AOI1 = LSM303DLHC_HPF_AOI1_DISABLE;
+  LSM303DLHCFilter_InitStructure.HighPassFilter_AOI2 = LSM303DLHC_HPF_AOI2_DISABLE;
 
-		/* Configure the accelerometer LPF main parameters */
-		LSM303DLHC_AccFilterConfig(&LSM303DLHCFilter_InitStructure);
-	}
+  /* Configure the accelerometer LPF main parameters */
+  LSM303DLHC_AccFilterConfig(&LSM303DLHCFilter_InitStructure);
 }
 
 /**
@@ -269,15 +296,3 @@ void Compass::GetMag (float* pfData)
 }
 
 
-extern uint32_t msTicks;
-extern Sensors* sensors;
-/**
-  * @brief  This function handles SysTick Handler.
-  * @param  None
-  * @retval None
-  */
-void SysTick_Handler(void)
-{
-	msTicks++;
-	sensors->CalcAngles();
-}

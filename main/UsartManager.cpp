@@ -38,8 +38,9 @@ GPIO_InitTypeDef GPIO_InitStructure;
 USART_InitTypeDef USART_InitStructure;
 NVIC_InitTypeDef NVIC_InitStructure;
 
-UsartManager::UsartManager(int inten, Motors* motors) {
+UsartManager::UsartManager(int inten, Motors* motors, Sensors* sensors) {
 	m_motors = motors;
+	m_sensors = sensors;
 	/* Enable GPIO clock */
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 	/* Enable USART clock */
@@ -91,7 +92,7 @@ UsartManager::UsartManager(int inten, Motors* motors) {
 	Init_Commands();
 }
 
-int UsartManager::GetCommand(volatile char* buffer, int size, Sensors* sensors)
+int UsartManager::GetCommand(volatile char* buffer, int size)
 {
 	int motor = 0;
 	int mspeed = 0;
@@ -153,7 +154,7 @@ int UsartManager::GetCommand(volatile char* buffer, int size, Sensors* sensors)
 				else if(cmd == 2)
 				{
 					float angles[3] = {0};
-					sensors->GetAngles(angles);
+					m_sensors->GetAngles(angles);
 					printf("angles: %g %g %g\n\r",angles[0],angles[1],angles[2]); 
 					
 				}

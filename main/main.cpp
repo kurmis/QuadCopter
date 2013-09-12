@@ -21,6 +21,9 @@ __IO char TX_Buffer[128];
 extern volatile uint32_t UserButtonPressed;
 extern uint32_t volatile msTicks;
 Sensors* sensors;
+Motors* motors;
+UsartManager* usart;
+
 
 int main(void)
 {	
@@ -48,16 +51,30 @@ int main(void)
 	{
 		STM_EVAL_LEDOff((Led_TypeDef)LEDS[i]);
 	}
-	Sensors sensors_;
+	Motors motors_(false);
+	motors = &motors_;
+	Gyro gyro(1);
+	Compass compass(1);
+	Sensors sensors_(&gyro, &compass);
 	sensors = &sensors_;
-	Motors motors(false);
-	UsartManager usart(1, &motors);
-	STM_EVAL_LEDOn((Led_TypeDef)LEDS[LED_NUM-1]);
+	UsartManager usart_(1, motors, sensors);
+	usart = &usart_;
+	STM_EVAL_LEDOn(LED10);
 	UserButtonPressed = 0x00;
-	printf("Init complete\n\r");
+	printf("Start\n\r");
+	printf("Complete\n\r");
+	volatile int oldTime = 0;
   while (1)
   {
-		usart.GetCommand(RX_Buffer, 128, sensors);		
+		doCalc((msTicks-oldTime)/1000.0f);
+		oldTime = msTicks;
+		usart->GetCommand(RX_Buffer, 128);	
+		Delay(100);
   }//while(1)
+}
+
+void doCalc(float dt)
+{
+	sensors->CalcAngles(dt);
 }
 

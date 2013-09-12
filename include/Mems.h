@@ -16,14 +16,14 @@
 class Gyro
 {
 public:
-	Gyro(bool init = true);
+	Gyro(int init);
 	void GetData(float* pfData);
 };
 
 class Compass
 {
 public:
-	Compass(bool init = true);
+	Compass(int init);
 	void GetAcc(float* pfData);
 	void GetMag(float* pfData);
 };
@@ -32,12 +32,12 @@ class Sensors
 {
 private:
 	float m_angles[3];
-	Gyro* gyro;
-	Compass* compass;
+	Gyro* m_gyro;
+	Compass* m_compass;
 public:
-	Sensors();
+	Sensors(Gyro* gyro, Compass* compass);
 	void GetAngles(float* pfData);
-	void CalcAngles();
+	void CalcAngles(float dt);
 };
 
 #endif

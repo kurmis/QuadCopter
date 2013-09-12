@@ -14,5 +14,6 @@ static void TIM_Config(void);
 
 
 void SysTick_Handler (void);
+void doCalc(float dt);
 
 #endif /* __MAIN_H */

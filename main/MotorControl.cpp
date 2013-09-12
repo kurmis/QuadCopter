@@ -179,7 +179,7 @@ int Motors::InitPwm(int pwm_freq)
 
 void Motor::SetPwmWidth(int channel, int pwm_period, int duty_cycle)
 {
-	int pwm_pulses = pwm_period*(float)duty_cycle/100.0;
+	int pwm_pulses = pwm_period*duty_cycle/100.0;
 	switch (channel){
 		case 1: TIM_SetCompare1(TIM1, pwm_pulses); break;
 		case 2: TIM_SetCompare2(TIM1, pwm_pulses); break;

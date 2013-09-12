@@ -178,6 +178,20 @@ void PendSV_Handler(void)
   * @}
   */ 
 
+extern uint32_t msTicks;
+//extern Sensors* sensors;
+/**
+  * @brief  This function handles SysTick Handler.
+  * @param  None
+  * @retval None
+  */
+void SysTick_Handler(void)
+{
+	//STM_EVAL_LEDToggle(LED5);
+	//sensors->CalcAngles(1);
+	//doCalc(1);
+	msTicks++;
+}
 /**
   * @}
   */ 
