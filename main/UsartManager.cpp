@@ -8,12 +8,13 @@
 
 const int USART_SPEED= 115200;
 bool RecievedData(int RX_Count) { return (RX_Count>0); };
+extern float MIN_SPEED;
 
 //// command list  ///////
-#define CMD_SIZE 5
+const int CMD_SIZE = 10;
 int CMD_STR_LEN[CMD_SIZE];
 
-char* CMD_STR[CMD_SIZE] = {"null","setSpeed","getData", "setAuto", "initMotors"};
+char* CMD_STR[CMD_SIZE] = {"null","setSpeed","getData", "setAuto", "initMotors", "setPID", "help", "setPrint", "setMinSpeed", "getPID"};
 
 void UsartManager::Init_Commands(void)
 {
@@ -38,9 +39,10 @@ GPIO_InitTypeDef GPIO_InitStructure;
 USART_InitTypeDef USART_InitStructure;
 NVIC_InitTypeDef NVIC_InitStructure;
 
-UsartManager::UsartManager(int inten, Motors* motors, Sensors* sensors) {
+UsartManager::UsartManager(int inten, Motors* motors, Sensors* sensors, QuadControl* control) {
 	m_motors = motors;
 	m_sensors = sensors;
+	m_control = control;
 	/* Enable GPIO clock */
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 	/* Enable USART clock */
@@ -145,39 +147,77 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 					else
 					{
 						printf("setting motor=%d speed=%d\n\r", motor, mspeed);
-						if(motor == 1)
-						{
-							m_motors->motor1->SetSpeed(mspeed);
+						switch(motor) {
+							case 1: m_motors->motor1->SetSpeed(mspeed); break;
+							case 2: m_motors->motor2->SetSpeed(mspeed); break;
+							case 3: m_motors->motor3->SetSpeed(mspeed); break;
+							case 4: m_motors->motor4->SetSpeed(mspeed); break;
+							default: printf("no motor %d\n\r", motor); break;
 						}
+							
 					}
 				}
 				else if(cmd == 2)
 				{
 					float angles[3] = {0};
 					m_sensors->GetAngles(angles);
+					
 					printf("angles: %g %g %g\n\r",angles[0],angles[1],angles[2]); 
-					
+					//TransmitAngles(angles);
 				}
-				/*else if (cmd == 3)
+				else if (cmd == 3)
 				{
-					float mspeed = 200.0f;
-					float gyroData[3]={0.0f};
-					float delta = 0.0f;
-					while(1)
-					{
-						Demo_GyroReadAngRate(gyroData);
-						//delta = (200-accData[0]) / 5;
-						delta = gyroData[0]*10;
-						m_motors->motor1->SetSpeed(mspeed+delta);
-						Delay(300);
-						printf("delta %g, speed %g\n\r",delta,delta+mspeed);
-					}
-					
-				}*/
+					setAuto();
+					printf("Auto balance is %d\n\r", getAuto());
+				}
 				else if(cmd == 4)
 				{
-					printf("Restarting motors");
+					printf("Restarting motors\n\r");
 					m_motors->Reinit();
+				}
+				else if(cmd == 5)
+				{
+					char pid[255] = {0};
+					float p;
+					float i;
+					float d;
+					sscanf(args, "%s %g %g %g", pid, &p, &i, &d);
+					printf("Setting pid: %s Kp = %g Ki = %g Kd = %g\n\r", pid, p, i , d);
+					if(pid[0] == 'x')
+					{
+						m_control->SetPIDX(p, i, d);
+						printf("Success\n\r");
+					}
+					else
+					{
+						printf("Failed to set pid '%s'", pid);
+					}
+					
+				}
+				else if(cmd == 6)
+				{
+					printf("Available commands: \n\r");
+					for(int index = 0; index < CMD_SIZE; index++)
+					{
+						printf("!%s;\n\r", CMD_STR[index]);
+					}
+					printf("\n\r");
+				}
+				else if(cmd == 7)
+				{
+					m_control->TogglePrint();
+					printf("PID print %d\n\r", m_control->GetPrint()); 
+				}
+				else if (cmd == 8)
+				{
+					float minSpeed = MIN_SPEED;
+					sscanf(args, "%g", &minSpeed);
+					MIN_SPEED = minSpeed;
+					printf("Min motor speed = %g\n\r", MIN_SPEED);
+				}
+				else if(cmd == 9)
+				{
+					m_control->PrintPIDVals();
 				}
 				else
 				{
@@ -186,13 +226,28 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 			}
 			else
 			{
-				printf("unidentified command\n\r");
+				printf("unidentified command, type !help; to see comand list\n\r");
 			}
 			Clear_Buffer(buffer, size);
 		}
 	}
 	return cmd;
 }
+
+void UsartManager::TransmitAngles(float* angles)
+{
+	for(int i = 0; i < 3; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			uint8_t const * byte = reinterpret_cast<uint8_t const * >(&angles[i]);
+			USART_SendData(USART2, byte[j]);								
+			 // Wait until transmit finishes 
+			while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
+		}
+	}
+}
+
 
 void UsartManager::Clear_Buffer(volatile char* buffer, int size)
 {

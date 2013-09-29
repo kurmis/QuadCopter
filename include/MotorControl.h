@@ -11,13 +11,15 @@ public:
 	//do not initialize directly
 	Motor(int motor,int period);
 	void SetSpeed(float level);
+  float GetSpeed();
 	
 private:
 	int m_pwmPeriod;
 	int m_motor;
-	int m_level;
+	float m_level;
 	void SetPwmWidthNorm(int channel, int pwm_period, float duty_cycle);
 	void SetPwmWidth(int channel, int pwm_period, int duty_cycle);
+	
 };
 
 class Motors {
@@ -31,7 +33,9 @@ public:
 public:
 	Motors(bool initHigh);
 	void SetSpeed(float level);
+	void SetSpeed(int motor, float level);
 	void Reinit();
+	int GetPwmPeriod();
 
 private:
 	

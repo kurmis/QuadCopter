@@ -1,19 +1,15 @@
 #include "MotorControl.h"
 #include "utils.h"
+#include "stdio.h"
 
-
+int Motors::GetPwmPeriod()
+{
+	return m_pwmPeriod;
+}
 Motors::Motors(bool initHigh)
 {
 	InitPwmGpio();
 	m_pwmPeriod = InitPwm(INIT_PWM);
-	static Motor motor1_(1, m_pwmPeriod);
-	static Motor motor2_(2, m_pwmPeriod);
-	static Motor motor3_(3, m_pwmPeriod);
-	static Motor motor4_(4, m_pwmPeriod);
-	motor1 = &motor1_;
-	motor2 = &motor2_;
-	motor3 = &motor3_;
-	motor4 = &motor4_;
 	if(initHigh)
 	{
 		Reinit();
@@ -26,6 +22,16 @@ void Motors::SetSpeed(float level)
 	motor2->SetSpeed(level);
 	motor3->SetSpeed(level);
 	motor4->SetSpeed(level);	
+}
+void Motors::SetSpeed(int motor, float level)
+{
+	switch (motor){
+		case 1: motor1->SetSpeed(level); break;
+		case 2: motor2->SetSpeed(level); break;
+		case 3: motor3->SetSpeed(level); break;
+		case 4: motor4->SetSpeed(level); break;
+		default: printf("Invalid motor %d\n\r", motor); break;
+	}
 }
 /*
 motor = [1..4]
@@ -48,21 +54,24 @@ Motor::Motor(int motor,int period)
 
 void Motor::SetSpeed(float level)
 {
-	
 	float duty_cycle= 0.0f;
-	
+	m_level = level;
 	if(level < 1)
 	{
-		level = 1.0f;
+		m_level = 1.0f;
 	}
 	else if (level > 1000)
 	{
-		level = 1000.0f;
+		m_level = 1000.0f;
 	}
 	
-	duty_cycle = MOTOR_LOW + level * (MOTOR_HIGH-MOTOR_LOW) / 1000.0f; 
+	duty_cycle = MOTOR_LOW + m_level * (MOTOR_HIGH-MOTOR_LOW) / 1000.0f; 
 	SetPwmWidthNorm(m_motor, m_pwmPeriod, duty_cycle);
 	
+}
+float Motor::GetSpeed()
+{
+	return m_level;
 }
 void Motors::InitPwmGpio(void)
 {
@@ -75,20 +84,21 @@ void Motors::InitPwmGpio(void)
 		//    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF; // Use the alternative pin functions
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; // GPIO speed - has nothing to do with the timer timing
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP; // Push-pull
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; // Setup pull-up resistors
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	// Connect the timer output to the LED pins
 	// Check the alternative function mapping in the CPU doc
 	// http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00058181.pdf
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_6); // TIM1_CH1 -> LED3
-	//GPIO_PinAFConfig(GPIOE, GPIO_PinSource11, GPIO_AF_2); // TIM1_CH3 -> LED10
-	//GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_2); // TIM1_CH2 -> LED7
+	GPIO_PinAFConfig(GPIOD, GPIO_PinSource12, GPIO_AF_2); // TIM4_CH1 -> LED3
+	GPIO_PinAFConfig(GPIOD, GPIO_PinSource13, GPIO_AF_2); // TIM4_CH3 -> LED10
+  GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_2); // TIM4_CH2 -> LED7
+	GPIO_PinAFConfig(GPIOD, GPIO_PinSource15, GPIO_AF_2);
 	
 }
 
@@ -112,17 +122,17 @@ int Motors::InitPwm(int pwm_freq)
 	int ms_pulses = (float)pwm_period / (1000.0/pwm_freq); // for 200Hz we get: 10000 / (1/200 * 1000) = 2000
 
 
-//  Enable the TIM1 peripherie
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE );
+//  Enable the TIM4 peripherie
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4 , ENABLE );
 
-// Setup the timing and configure the TIM1 timer
+// Setup the timing and configure the TIM4 timer
 	
-	TIM_TimeBaseStructInit(& TIM_TimeBaseStructure);
+	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 	TIM_TimeBaseStructure.TIM_Prescaler = prescaler;
 	TIM_TimeBaseStructure.TIM_Period = pwm_period - 1;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up ;
-	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
 
 
 // Initialise the timer channels
@@ -143,36 +153,36 @@ int Motors::InitPwm(int pwm_freq)
 
 // Setup four channels
 	// Channel 1
-	TIM_OC1Init(TIM1, &TIM_OCInitStructure_pwm);
-	TIM_OC1PreloadConfig(TIM1, TIM_OCPreload_Enable);
+	TIM_OC1Init(TIM4, &TIM_OCInitStructure_pwm);
+	TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
 
 	// Channel 2
-	TIM_OC2Init(TIM1, &TIM_OCInitStructure_pwm);
-	TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+	TIM_OC2Init(TIM4, &TIM_OCInitStructure_pwm);
+	TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 
 	// Channel 3
-	TIM_OC3Init(TIM1, &TIM_OCInitStructure_pwm);
-	TIM_OC3PreloadConfig(TIM1, TIM_OCPreload_Enable);
+	TIM_OC3Init(TIM4, &TIM_OCInitStructure_pwm);
+	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
 
 	// Channel 4
-	TIM_OC4Init(TIM1, &TIM_OCInitStructure_pwm);
-	TIM_OC4PreloadConfig(TIM1, TIM_OCPreload_Enable);
+	TIM_OC4Init(TIM4, &TIM_OCInitStructure_pwm);
+	TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
 
 	// Starup the timer
-	//TIM_ARRPreloadConfig(TIM1, DISABLE);
-	TIM_ARRPreloadConfig(TIM1, DISABLE);
-	TIM_CtrlPWMOutputs(TIM1, ENABLE);
-	TIM_Cmd(TIM1 , ENABLE);
+	//TIM_ARRPreloadConfig(TIM4, DISABLE);
+	TIM_ARRPreloadConfig(TIM4, DISABLE);
+	TIM_CtrlPWMOutputs(TIM4, ENABLE);
+	TIM_Cmd(TIM4 , ENABLE);
 
 	// The PWM is running now. The pulse width can be set by
-	// TIM1->CCR1 = [0..pwm_period] -> 0..100% duty cycle
+	// TIM4->CCR1 = [0..pwm_period] -> 0..100% duty cycle
 	//
 	// For example:
 	// int pulse_width = 3000;
-	// TIM1->CCR1 = pulse_width;
+	// TIM4->CCR1 = pulse_width;
 	//
 	// The firmware offers a API to do this:
-	// TIM_SetCompare1(TIM1 , pulse_width); // This is a wrapper for TIM1->CCR1, the same as TIM1->CCR1=pulse_width;
+	// TIM_SetCompare1(TIM4 , pulse_width); // This is a wrapper for TIM4->CCR1, the same as TIM1->CCR1=pulse_width;
 
 	return pwm_period;
 }
@@ -182,9 +192,9 @@ void Motor::SetPwmWidth(int channel, int pwm_period, int duty_cycle)
 	int pwm_pulses = pwm_period*duty_cycle/100.0;
 	switch (channel){
 		case 1: TIM_SetCompare1(TIM1, pwm_pulses); break;
-		case 2: TIM_SetCompare2(TIM1, pwm_pulses); break;
-		case 3: TIM_SetCompare3(TIM1, pwm_pulses); break;
-		case 4: TIM_SetCompare4(TIM1, pwm_pulses); break;
+		case 2: TIM_SetCompare2(TIM4, pwm_pulses); break;
+		case 3: TIM_SetCompare3(TIM4, pwm_pulses); break;
+		case 4: TIM_SetCompare4(TIM4, pwm_pulses); break;
 	}
 }
 
@@ -198,10 +208,10 @@ void Motor::SetPwmWidthNorm(int channel, int pwm_period, float duty_cycle)
 {
 	int pwm_pulses = pwm_period*(float)duty_cycle;
 	switch (channel){
-		case 1: TIM_SetCompare1(TIM1, pwm_pulses); break;
-		case 2: TIM_SetCompare2(TIM1, pwm_pulses); break;
-		case 3: TIM_SetCompare3(TIM1, pwm_pulses); break;
-		case 4: TIM_SetCompare4(TIM1, pwm_pulses); break;
+		case 1: TIM_SetCompare1(TIM4, pwm_pulses); break;
+		case 2: TIM_SetCompare2(TIM4, pwm_pulses); break;
+		case 3: TIM_SetCompare3(TIM4, pwm_pulses); break;
+		case 4: TIM_SetCompare4(TIM4, pwm_pulses); break;
 	}
 }
 

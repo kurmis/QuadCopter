@@ -177,8 +177,7 @@ void PendSV_Handler(void)
 /**
   * @}
   */ 
-
-extern uint32_t msTicks;
+extern volatile uint32_t msTicks;
 //extern Sensors* sensors;
 /**
   * @brief  This function handles SysTick Handler.
@@ -235,7 +234,6 @@ void USART2_IRQHandler()
 	//TX_Buffer Interrupt Mode
 	if(USART_GetITStatus(USART2, USART_IT_TC) != RESET)
 	{
-		RX_IN_Index = 0;
 		if(TX_Count)
 		{	
 			--TX_Count;

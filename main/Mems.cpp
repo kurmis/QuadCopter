@@ -4,8 +4,9 @@
 #include "stm32f3_discovery_lsm303dlhc.h"
 #include "stm32f3_discovery_l3gd20.h"
 #include "stm32f3_discovery.h"
+#include "Utils.h"
 
-const float COMPLEMENTARY_GYRO = 0.99f;
+const float COMPLEMENTARY_GYRO = 0.9f;
 const float COMPLEMENTARY_ACC = 1.0f - COMPLEMENTARY_GYRO; 
 const float RAD_TO_DEG = 180.0f / PI;
 
@@ -29,7 +30,9 @@ void Sensors::GetAngles(float* pfData)
 	}
 }
 
-void Sensors::CalcAngles(float dt)
+extern volatile unsigned int msTicks;
+
+void Sensors::CalcAngles(int timeOfLastMeasure)
 {
 	float gyroData[3]={0};
 	float accData[3]={0};
@@ -43,11 +46,11 @@ void Sensors::CalcAngles(float dt)
 		len += accData[i]*accData[i];
 	}
 	len = sqrt(len);
-	
 	accAngle[0] = RAD_TO_DEG * acos(accData[0]/len) - 90.0f;
 	accAngle[1] = RAD_TO_DEG * acos(accData[1]/len) - 90.0f;
 	accAngle[2] = RAD_TO_DEG * acos(accData[2]/len);
 	
+	float dt = (msTicks - timeOfLastMeasure) / 1000.0f;
 	for(int i = 0; i < 3; i++)
 	{
 		m_angles[i] = COMPLEMENTARY_GYRO*(m_angles[i] + gyroData[i]*dt) + COMPLEMENTARY_ACC*accAngle[i];
@@ -77,7 +80,33 @@ Gyro::Gyro(int init)
 		
 		L3GD20_FilterCmd(L3GD20_HIGHPASSFILTER_ENABLE);
 	}
+	for(int i = 0; i < 3; i++)
+	{
+		m_offset[i] = 0;
+	}
+	Calibrate(500);
 }
+
+//Calibrates gyroscope.
+// avgTimes - sample size
+void Gyro::Calibrate(int avgTimes)
+{
+	float tmp[3] = {0};
+	for(int i = 0; i < avgTimes; i++)
+	{
+		GetData(tmp);
+		for(int j = 0; j < 3; j++)
+		{
+			m_offset[j] += tmp[j];
+		}
+		Delay(1);
+	}
+	for(int i = 0; i < 3; i++)
+	{
+		m_offset[i] /= avgTimes;
+	}
+}
+
 
 void Gyro::GetData(float* pfData)
 {
@@ -126,7 +155,7 @@ void Gyro::GetData(float* pfData)
   /* divide by sensitivity */
   for(i=0; i<3; i++)
   {
-    pfData[i]=(float)RawData[i]/sensitivity;
+    pfData[i]=(float)RawData[i]/sensitivity - m_offset[i];
   }
 }
 Compass::Compass(int init)
