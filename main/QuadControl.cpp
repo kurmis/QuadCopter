@@ -9,8 +9,8 @@ QuadControl::QuadControl(Sensors* sensors, Motors* motors)
 {
 	m_sensors = sensors;
 	m_motors = motors;
-	InitPid(m_pidX, 0.2, 0, 0.001);
-	InitPid(m_pidY, 0.2, 0, 0.001);
+	InitPid(m_pidX, 10, 1e-10f, 0.001);
+	InitPid(m_pidY, 10, 1e-10f, 0.001);
 	m_print = false;
 }
 void QuadControl::InitPid(PID& pid, float p, float i, float d)
@@ -92,7 +92,7 @@ float QuadControl::CalcPID(PID& pid, float error)
 	pid.derivative = (error - pid.oldError)*1000.0f/(pid.oldTicks-msTicks);
 	pid.oldError = error;
 	pid.oldTicks = msTicks;
-	return pid.Kp*error + Constrain(pid.Ki*pid.integral, -100, 100) + pid.Kd*pid.derivative;
+	return pid.Kp*error + pid.Ki*pid.integral + pid.Kd*pid.derivative;
 }
 
 void QuadControl::PrintPIDVals()

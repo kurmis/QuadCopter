@@ -174,6 +174,13 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 					{
 						m_motors->SetSpeed(0);
 					}
+					else
+					{
+						float th = 0;
+						sscanf(args, "%g", &th);
+						printf("Setting throttle to %g\r\n",th);
+						m_control->SetThrottle(th);
+					}
 				}
 				else if(cmd == 4)
 				{
