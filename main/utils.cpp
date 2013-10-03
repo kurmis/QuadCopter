@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdio.h>
 
 extern volatile unsigned int msTicks;
 
@@ -57,5 +58,51 @@ void mult(float* result, float* a, float* b)
 	result[1] = a[3]*b[1] - a[1]*b[3];
 	result[2] = a[1]*b[2] - a[2]*b[1];
 
+}
+
+void Sleeper::For(unsigned int ms)
+{
+	unsigned int timeToSleep = ms + m_from;
+	if(timeToSleep < msTicks)
+	{
+		printf("Overslept by %dms\n\r", msTicks - timeToSleep);
+	}
+	while(msTicks < timeToSleep);
+}
+void Sleeper::FromNow() { m_from = msTicks; }
+void Isort(float *a, int n){
+  for (int i = 1; i < n; ++i){
+    float j = a[i];
+    int k;
+    for (k = i - 1; (k >= 0) && (j < a[k]); k--){
+      a[k + 1] = a[k];
+    }
+    a[k + 1] = j;
+  }
+}
+
+float FindMedian(float *data, int arraySize){
+  Isort(data, arraySize);
+  
+  return data[arraySize/2];
+}
+
+float Min(float a, float b)
+{
+	if(a > b)
+		return b;
+	return a;
+}
+float Max(float a, float b)
+{
+	if(a > b)
+	{
+		return a;
+	}
+	return b;
+}
+float Constrain(float c, float min, float max)
+{
+	return Max(min, Min(max, c));
 }
 

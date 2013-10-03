@@ -17,10 +17,11 @@ class Gyro
 {
 private:
 	float m_offset[3];
-  void Calibrate(int avgTimes);
+  
 public:
 	Gyro(int init);
 	void GetData(float* pfData);
+  void Calibrate(int avgTimes, int delay);
 };
 
 class Compass
@@ -38,11 +39,14 @@ private:
 	float m_angles[3];
 	Gyro* m_gyro;
 	Compass* m_compass;
+  bool m_print;
   
 public:
 	Sensors(Gyro* gyro, Compass* compass);
 	void GetAngles(float* pfData);
 	void CalcAngles(int timeOfLastMeasure);
+  int GetPrint() { m_print = !m_print; return m_print; }
+  void Calibrate(int avgTimes, int delay) { m_gyro->Calibrate(avgTimes, delay); }
 };
 
 #endif

@@ -26,6 +26,7 @@ Motors* motors;
 UsartManager* usart;
 bool balance = false;
 
+
 int main(void)
 {	
 	int i = 0;
@@ -71,16 +72,20 @@ int main(void)
 	printf("Started\n\rType !help; for available commands\n\r");
 	volatile unsigned int oldTicks = msTicks;
 	float balanceZero[3] = {0};
+	sensors->Calibrate(0, 20);
+	Sleeper sleep;
   while (1)
   {
 		//printf("Time %d, delta %d", clock.GetTime(), clock.GetTime() - oldTime);
 		//printf("msTicks delta %d", msTicks - oldTicks);
-		for(i = 0; i < 10; i++)
+		for(i = 0; i < 13; i++)
 		{
+			sleep.FromNow();
 			doCalc(oldTicks);
 			oldTicks = msTicks;
 			usart->GetCommand(RX_Buffer, 128);	
-			Delay(20);
+			sleep.For(15);
+			//Delay(20);
 		}
 		if(balance)
 		{

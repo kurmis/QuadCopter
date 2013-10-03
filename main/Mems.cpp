@@ -6,7 +6,7 @@
 #include "stm32f3_discovery.h"
 #include "Utils.h"
 
-const float COMPLEMENTARY_GYRO = 0.9f;
+const float COMPLEMENTARY_GYRO = 0.98f;
 const float COMPLEMENTARY_ACC = 1.0f - COMPLEMENTARY_GYRO; 
 const float RAD_TO_DEG = 180.0f / PI;
 
@@ -40,21 +40,42 @@ void Sensors::CalcAngles(int timeOfLastMeasure)
 	m_compass->GetAcc(accData);
 	
 	float accAngle[3]={0};
-	float len = 0;
+	/*float len = 0;
 	for(int i = 0; i < 3; i++)
 	{
 		len += accData[i]*accData[i];
 	}
-	len = sqrt(len);
-	accAngle[0] = RAD_TO_DEG * acos(accData[0]/len) - 90.0f;
-	accAngle[1] = RAD_TO_DEG * acos(accData[1]/len) - 90.0f;
-	accAngle[2] = RAD_TO_DEG * acos(accData[2]/len);
+	len = sqrt(len);*/
 	
+  float x = accData[0];
+	float y = accData[1];
+	float z = accData[2]; 
+	float xx = sqrt(y*y + z*z);
+	float yy = sqrt(x*x + z*z);
+  float zz = sqrt(x*x + y*y);	
+	accAngle[0] = RAD_TO_DEG * atan2(x,xx);
+	accAngle[1] = RAD_TO_DEG * atan2(y,yy);
+	//accAngle[2] = RAD_TO_DEG * atan2(zz,z);
+	accAngle[2] = 0;
 	float dt = (msTicks - timeOfLastMeasure) / 1000.0f;
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 2; i++)
 	{
-		m_angles[i] = COMPLEMENTARY_GYRO*(m_angles[i] + gyroData[i]*dt) + COMPLEMENTARY_ACC*accAngle[i];
+		m_angles[i] = COMPLEMENTARY_GYRO*(m_angles[i] - gyroData[i]*dt) + COMPLEMENTARY_ACC*accAngle[i];
 	}
+	m_angles[2] -= gyroData[2]*dt;
+	if(m_print)
+	{
+		static int c = 0;
+		c++;
+		if(c > 500)
+		{
+			c = 0;
+			printf("Gyro val: %g acc val: %g\r\n", COMPLEMENTARY_GYRO, COMPLEMENTARY_ACC); 
+			printf("Acc: %g %g %g\r\n", accAngle[0], accAngle[1], accAngle[2]);
+			printf("Gyro: %g %g %g\n\r", m_angles[0], m_angles[1], m_angles[2]); 
+		}
+	}
+	
 }
 
 Gyro::Gyro(int init)
@@ -84,27 +105,37 @@ Gyro::Gyro(int init)
 	{
 		m_offset[i] = 0;
 	}
-	Calibrate(500);
+	
 }
 
 //Calibrates gyroscope.
 // avgTimes - sample size
-void Gyro::Calibrate(int avgTimes)
+
+void Gyro::Calibrate(int avgTimes, int delay)
 {
+	printf("Calibration start\r\n");
+	Delay(200);
+	const int size = 50;
 	float tmp[3] = {0};
-	for(int i = 0; i < avgTimes; i++)
+	float tmpx[size] = {0};
+  float tmpy[size] = {0};
+  float tmpz[size] = {0};
+	for(int i = 0; i < size; i++)
 	{
 		GetData(tmp);
-		for(int j = 0; j < 3; j++)
-		{
-			m_offset[j] += tmp[j];
-		}
-		Delay(1);
+		tmpx[i] = tmp[0];
+		tmpy[i] = tmp[1];
+		tmpz[i] = tmp[2];
+		Delay(delay);
 	}
+	m_offset[0] = FindMedian(tmpx, size);
+	m_offset[1] = FindMedian(tmpy, size);
+	m_offset[2] = FindMedian(tmpz, size);
 	for(int i = 0; i < 3; i++)
 	{
-		m_offset[i] /= avgTimes;
+		printf("%g ", m_offset[i]);
 	}
+	printf("\r\nGyro offset: %g %g %g\n\r", m_offset[0], m_offset[1], m_offset[2]);
 }
 
 

@@ -2,13 +2,15 @@
 #include "Utils.h"
 #include "stdio.h"
 
-float MIN_SPEED = 50;
+float MIN_SPEED = 100;
+float MAX_SPEED = 700;
 
 QuadControl::QuadControl(Sensors* sensors, Motors* motors)
 {
 	m_sensors = sensors;
 	m_motors = motors;
-	InitPid(m_pidX, 1, 0, 0);
+	InitPid(m_pidX, 0.2, 0, 0.001);
+	InitPid(m_pidY, 0.2, 0, 0.001);
 	m_print = false;
 }
 void QuadControl::InitPid(PID& pid, float p, float i, float d)
@@ -27,6 +29,10 @@ void QuadControl::SetPIDX(float p, float i, float d)
 {
 	InitPid(m_pidX, p, i, d);
 }
+void QuadControl::SetPIDY(float p, float i, float d)
+{
+	InitPid(m_pidY, p, i, d);
+}
 
 void QuadControl::Balance(float* angle)
 {
@@ -35,31 +41,32 @@ void QuadControl::Balance(float* angle)
 	float delta[3];
 	diff(delta, angle, curAngle);
 	float deltaX = BalanceX(delta[0]);
-  float m1speed = m_motors->motor1->GetSpeed();
-  float m2speed = m_motors->motor2->GetSpeed();
+  float deltaY = BalanceY(delta[1]);
+  float m1speed = m_throttle;
+  float m2speed = m_throttle;
+  float m3speed = m_throttle;
+  float m4speed = m_throttle;
   m1speed += deltaX/2.0f;
-  m2speed -= deltaX/2.0f;
-  m_motors->motor1->SetSpeed(m1speed);
-  m_motors->motor2->SetSpeed(m2speed);
-  if(MIN_SPEED > m1speed)
-	{
-		m_motors->motor1->SetSpeed(MIN_SPEED);
-	}
-	if(MIN_SPEED > m2speed)
-	{
-		m_motors->motor2->SetSpeed(MIN_SPEED);
-	}
+  m2speed += deltaY/2.0f;
+  m3speed -= deltaX/2.0f;
+  m4speed -= deltaY/2.0f;
+  m_motors->motor1->SetSpeed(Constrain(m1speed,MIN_SPEED, MAX_SPEED));
+  m_motors->motor2->SetSpeed(Constrain(m2speed,MIN_SPEED, MAX_SPEED));
+  m_motors->motor3->SetSpeed(Constrain(m3speed,MIN_SPEED, MAX_SPEED));
+  m_motors->motor4->SetSpeed(Constrain(m4speed,MIN_SPEED, MAX_SPEED));
   
   if(m_print)
 	{
 		static int i = 0;
 		i++;
-		if( i > 70)
+		if( i > 30)
 		{
 			i = 0;
 			printf("pidX output = '%g'\r\n", deltaX);
 			printf("motor1 speed set = '%g'\r\n", m_motors->motor1->GetSpeed());
 			printf("motor2 speed set = '%g'\r\n", m_motors->motor2->GetSpeed());
+			printf("motor3 speed set = '%g'\r\n", m_motors->motor3->GetSpeed());
+			printf("motor4 speed set = '%g'\r\n", m_motors->motor4->GetSpeed());
 		}
 	}
 }
@@ -67,6 +74,10 @@ void QuadControl::Balance(float* angle)
 float QuadControl::BalanceX(float delta)
 {
 	return CalcPID(m_pidX, delta);
+}
+float QuadControl::BalanceY(float delta)
+{
+	return CalcPID(m_pidY, delta);
 }
 
 /*error = setpoint - measured_value
@@ -81,10 +92,11 @@ float QuadControl::CalcPID(PID& pid, float error)
 	pid.derivative = (error - pid.oldError)*1000.0f/(pid.oldTicks-msTicks);
 	pid.oldError = error;
 	pid.oldTicks = msTicks;
-	return pid.Kp*error + pid.Ki*pid.integral + pid.Kd*pid.derivative;
+	return pid.Kp*error + Constrain(pid.Ki*pid.integral, -100, 100) + pid.Kd*pid.derivative;
 }
 
 void QuadControl::PrintPIDVals()
 {
 	printf("PIDX: Kp = %g, Ki = %g, Kd = %g\n\r", m_pidX.Kp, m_pidX.Ki, m_pidX.Kd);
+	printf("PIDY: Kp = %g, Ki = %g, Kd = %g\n\r", m_pidY.Kp, m_pidY.Ki, m_pidY.Kd);
 }

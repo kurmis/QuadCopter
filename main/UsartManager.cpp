@@ -11,10 +11,10 @@ bool RecievedData(int RX_Count) { return (RX_Count>0); };
 extern float MIN_SPEED;
 
 //// command list  ///////
-const int CMD_SIZE = 10;
+const int CMD_SIZE = 11;
 int CMD_STR_LEN[CMD_SIZE];
 
-char* CMD_STR[CMD_SIZE] = {"null","setSpeed","getData", "setAuto", "initMotors", "setPID", "help", "setPrint", "setMinSpeed", "getPID"};
+char* CMD_STR[CMD_SIZE] = {"null","setSpeed","getData", "setAuto", "initMotors", "setPID", "help", "setPrint", "setMinSpeed", "getPID", "getSpeed"};
 
 void UsartManager::Init_Commands(void)
 {
@@ -142,6 +142,7 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 						for(motor = 1; motor < 5; motor++)
 						{
 							m_motors->SetSpeed(mspeed);
+							m_control->SetThrottle(mspeed);
 						}
 					}
 					else
@@ -169,6 +170,10 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 				{
 					setAuto();
 					printf("Auto balance is %d\n\r", getAuto());
+					if(!getAuto())
+					{
+						m_motors->SetSpeed(0);
+					}
 				}
 				else if(cmd == 4)
 				{
@@ -188,9 +193,14 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 						m_control->SetPIDX(p, i, d);
 						printf("Success\n\r");
 					}
+					else if(pid[0] == 'y')
+					{
+						m_control->SetPIDY(p, i, d);
+						printf("Success\n\r");
+					}
 					else
 					{
-						printf("Failed to set pid '%s'", pid);
+						printf("PID '%s' not found\n\r", pid);
 					}
 					
 				}
@@ -207,6 +217,7 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 				{
 					m_control->TogglePrint();
 					printf("PID print %d\n\r", m_control->GetPrint()); 
+					printf("Mems print %d\n\r", m_sensors->GetPrint());
 				}
 				else if (cmd == 8)
 				{
@@ -219,9 +230,13 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 				{
 					m_control->PrintPIDVals();
 				}
+				else if(cmd == 10)
+				{
+					printf("Auto throttle is at %g\r\n", m_control->GetThrottle());
+				}
 				else
 				{
-					printf("command not implemented\n\r");
+					printf("command not implemented (cmd = %d)\n\r", cmd);
 				}
 			}
 			else
@@ -276,8 +291,13 @@ int UsartManager::Identify(volatile char* buffer, int b_size, int start, int sto
 	//printf("Command extracted '%s', size %d \n\r", command, size);
 	for(;cmd < CMD_SIZE; cmd++)
 	{
+		if(CMD_STR_LEN[cmd] > 20)
+		{
+			printf("error in cmd %d len: %d commnad string %s.. reiniting\r",cmd, CMD_STR_LEN[cmd], CMD_STR[cmd]);
+      Init_Commands();			
+		}
 		compareValue = compStr(command, CMD_STR[cmd], CMD_STR_LEN[cmd]); 
-		//printf("Comparing to command '%s', compare value %d\n\r", CMD_STR[cmd], compareValue);
+		//printf("Comparing to command '%s', compare value %d, size = %d\n\r", CMD_STR[cmd], compareValue, CMD_STR_LEN[cmd]);
 		if(0 != compareValue)
 		{
 			int index = 0;
@@ -294,6 +314,7 @@ int UsartManager::Identify(volatile char* buffer, int b_size, int start, int sto
 }
 
 int UsartManager::compStr (char *s1, char *s2, int sz) {
+	  //printf("Comparing %s to %s\n\r", s1, s2);
     while (sz != 0) {
         // At end of both strings, equal.
         if ((*s1 == '\0') && (*s2 == '\0')) break;
@@ -303,6 +324,7 @@ int UsartManager::compStr (char *s1, char *s2, int sz) {
         if ((*s1 == ' ') && (*s2 == '\0')) { s1++; sz--; continue; }
 
         // Detect difference otherwise.
+				//printf("size = %d, %s %s\r", sz, s1, s2);
         if (*s1 != *s2) return 0;
 
         s1++; s2++; sz--;

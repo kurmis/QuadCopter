@@ -17,4 +17,21 @@ float mult(float* a, float* b);
 //cross product
 void mult(float* result, float* a, float* b);
 
+class Sleeper
+{
+private:
+	unsigned int m_from;
+public:
+	void FromNow();
+  void For(unsigned int ms);
+};
+
+void Isort(float *a, int n);
+float FindMedian(float *data, int arraySize);
+
+float Max(float a, float b);
+float Min(float a, float b);
+float Constrain(float c, float min, float max);
+
+
 #endif
