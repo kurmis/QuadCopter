@@ -1,7 +1,7 @@
 #ifndef __MOTOR_CONTROL_H
 #define __MOTOR_CONTROL_H
 #define MOTOR_LOW 0.45f
-#define MOTOR_HIGH 0.9f
+#define MOTOR_HIGH 0.8f
 #define INIT_PWM 400
 #define LED_NUM 8
 

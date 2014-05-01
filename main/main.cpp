@@ -56,6 +56,7 @@ int main(void)
 	sensors = &sensors_;
 	
 	int period = motors->GetPwmPeriod();
+	//pd13 
 	Motor motor1(1U, period);
 	Motor motor2(2U, period);
 	Motor motor3(3U, period);
@@ -72,7 +73,7 @@ int main(void)
 	printf("Started\n\rType !help; for available commands\n\r");
 	volatile unsigned int oldTicks = msTicks;
 	float balanceZero[3] = {0};
-	sensors->Calibrate(0, 20);
+	//sensors->Calibrate(0, 20);
 	Sleeper sleep;
   while (1)
   {

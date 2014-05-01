@@ -6,7 +6,7 @@
 #include "stm32f3_discovery.h"
 #include "Utils.h"
 
-const float COMPLEMENTARY_GYRO = 0.98f;
+const float COMPLEMENTARY_GYRO = 0.99f;
 const float COMPLEMENTARY_ACC = 1.0f - COMPLEMENTARY_GYRO; 
 const float RAD_TO_DEG = 180.0f / PI;
 
@@ -99,7 +99,7 @@ Gyro::Gyro(int init)
 		L3GD20_FilterStructure.HighPassFilter_CutOff_Frequency = L3GD20_HPFCF_0;
 		L3GD20_FilterConfig(&L3GD20_FilterStructure) ;
 		
-		L3GD20_FilterCmd(L3GD20_HIGHPASSFILTER_ENABLE);
+		L3GD20_FilterCmd(L3GD20_HIGHPASSFILTER_DISABLE);
 	}
 	for(int i = 0; i < 3; i++)
 	{

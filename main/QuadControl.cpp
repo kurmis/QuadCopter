@@ -2,15 +2,15 @@
 #include "Utils.h"
 #include "stdio.h"
 
-float MIN_SPEED = 100;
-float MAX_SPEED = 700;
+float MIN_SPEED = 100.0f;
+float MAX_SPEED = 700.0f;
 
 QuadControl::QuadControl(Sensors* sensors, Motors* motors)
 {
 	m_sensors = sensors;
 	m_motors = motors;
-	InitPid(m_pidX, 10, 1e-10f, 0.001);
-	InitPid(m_pidY, 10, 1e-10f, 0.001);
+	InitPid(m_pidX, 5.2, 0.0f, 0.008);
+	InitPid(m_pidY, 5.2, 0.0f, 0.008);
 	m_print = false;
 }
 void QuadControl::InitPid(PID& pid, float p, float i, float d)
@@ -38,7 +38,7 @@ void QuadControl::Balance(float* angle)
 {
 	float curAngle[3] = {0};
   m_sensors->GetAngles(curAngle);
-	float delta[3];
+	float delta[3] = {0}; 
 	diff(delta, angle, curAngle);
 	float deltaX = BalanceX(delta[0]);
   float deltaY = BalanceY(delta[1]);
@@ -50,10 +50,11 @@ void QuadControl::Balance(float* angle)
   m2speed += deltaY/2.0f;
   m3speed -= deltaX/2.0f;
   m4speed -= deltaY/2.0f;
+	m_motors->motor4->SetSpeed(Constrain(m4speed,MIN_SPEED, MAX_SPEED));
   m_motors->motor1->SetSpeed(Constrain(m1speed,MIN_SPEED, MAX_SPEED));
   m_motors->motor2->SetSpeed(Constrain(m2speed,MIN_SPEED, MAX_SPEED));
   m_motors->motor3->SetSpeed(Constrain(m3speed,MIN_SPEED, MAX_SPEED));
-  m_motors->motor4->SetSpeed(Constrain(m4speed,MIN_SPEED, MAX_SPEED));
+  
   
   if(m_print)
 	{
