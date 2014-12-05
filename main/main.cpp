@@ -72,7 +72,7 @@ int main(void)
 	UserButtonPressed = 0x00;
 	printf("Started\n\rType !help; for available commands\n\r");
 	volatile unsigned int oldTicks = msTicks;
-	float balanceZero[3] = {0};
+	float balanceZero[3] = {0.0f, 0.0f, 0.0f};
 	//sensors->Calibrate(0, 20);
 	Sleeper sleep;
   while (1)

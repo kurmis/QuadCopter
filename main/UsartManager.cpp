@@ -6,7 +6,7 @@
 #include "utils.h"
 #include <stdio.h>
 
-const int USART_SPEED= 115200;
+const int USART_SPEED= 9600;
 bool RecievedData(int RX_Count) { return (RX_Count>0); };
 extern float MIN_SPEED;
 
@@ -202,6 +202,12 @@ int UsartManager::GetCommand(volatile char* buffer, int size)
 					}
 					else if(pid[0] == 'y')
 					{
+						m_control->SetPIDY(p, i, d);
+						printf("Success\n\r");
+					}
+					else if(pid[0] == 'z')
+					{
+						m_control->SetPIDX(p, i, d);
 						m_control->SetPIDY(p, i, d);
 						printf("Success\n\r");
 					}
